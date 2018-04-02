@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewUnityARChess", "Assembly-CSharp.csproj", "{99798381-71DC-6392-2862-834A66706F58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewUnityARChess", "Assembly-CSharp-Editor.csproj", "{74C0E314-20A8-FF45-7EEB-C08C22E20611}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99798381-71DC-6392-2862-834A66706F58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99798381-71DC-6392-2862-834A66706F58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99798381-71DC-6392-2862-834A66706F58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99798381-71DC-6392-2862-834A66706F58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74C0E314-20A8-FF45-7EEB-C08C22E20611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74C0E314-20A8-FF45-7EEB-C08C22E20611}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74C0E314-20A8-FF45-7EEB-C08C22E20611}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74C0E314-20A8-FF45-7EEB-C08C22E20611}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
