@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/NewUnityARChess.unity
+- path: Assets/chessBoard.unity
   isLoaded: 1
   isActive: 1
