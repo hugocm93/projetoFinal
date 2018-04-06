@@ -65,12 +65,11 @@ public class BoardManager : MonoBehaviour
 		}
 	}
 
-	private void spawnChessPieces(int index, Vector3 position)
+    private void spawnChessPieces(int index, Vector3 position, Quaternion quaternion)
 	{
-		GameObject go = Instantiate(_chessPiecesPrefabs[index], position, Quaternion.identity) as GameObject;
-		go.transform.Translate(new Vector3(0, 0.7f, 0));
-		go.transform.Rotate(new Vector3(90, 0, 0));
-		go.transform.localScale = go.transform.localScale * 0.35f;
+        GameObject go = Instantiate(_chessPiecesPrefabs[index], position, quaternion) as GameObject;
+        go.transform.SetParent(transform);
+		go.transform.localScale = go.transform.localScale * 0.5f;
 
 		_activeChessPieces.Add(go); 
 	}
@@ -90,6 +89,7 @@ public class BoardManager : MonoBehaviour
 		{
             for(int j = 0; j < 8; j++)
 			{
+                Quaternion quaternion = Quaternion.identity;
 				int index = -1; 
                 if(i > 1 && i < 6)
                     break;
@@ -108,9 +108,12 @@ public class BoardManager : MonoBehaviour
 					index = 4; // queen
 
                 if(i >= 6)
+                {
                     index += 6; // white pieces
+                    quaternion = Quaternion.Euler(0, 180, 0); //face pieces to the center of the board
+                }
 				
-				spawnChessPieces(index, getTileCenter(j, i));
+				spawnChessPieces(index, getTileCenter(j, i), quaternion);
 			}
 		}
 	}

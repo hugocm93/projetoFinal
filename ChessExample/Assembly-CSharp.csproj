@@ -52,8 +52,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\BoardManager.cs" />
-     <Compile Include="Assets\Chess\Demo\Scripts\Main.cs" />
-     <Compile Include="Assets\Chess\Scripts\ChessUiEngine.cs" />
+     <None Include="Assets\Tiny Chess Stone Chess Piece\Readme Eng.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
