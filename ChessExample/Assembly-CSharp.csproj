@@ -59,6 +59,8 @@
      <Compile Include="Assets\Scripts\Pieces\Pawn.cs" />
      <Compile Include="Assets\Scripts\Pieces\Queen.cs" />
      <Compile Include="Assets\Scripts\Pieces\Rook.cs" />
+     <Compile Include="Assets\Scripts\TileHighlight.cs" />
+     <Compile Include="Assets\Scripts\Util.cs" />
      <None Include="Assets\Assets\Tiny Chess Stone Chess Piece\Readme Eng.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

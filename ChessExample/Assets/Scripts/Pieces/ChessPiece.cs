@@ -9,8 +9,8 @@ public abstract class ChessPiece : MonoBehaviour
     public Vector2Int _position{set; get;}
     public Color _color;
 
-    public virtual bool possibleMove(Vector2Int position)
+    public virtual bool[,] possibleMoves()
     {
-        return true;
+        return new bool[8, 8];
     }
 }

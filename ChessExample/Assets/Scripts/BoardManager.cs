@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-    private const float _tile_size = 1.0f;
-    private const float _tile_offset = 0.5f;
+    public static BoardManager _instance{set; get;}
     private readonly Vector2Int _none = new Vector2Int(-1, -1);
+
+    private bool[,] _allowedMoves{ get; set;}
 
     private ChessPiece.Color _turn;
     public ChessPiece[,] _chessPieces{ set; get;}
@@ -34,7 +35,10 @@ public class BoardManager : MonoBehaviour
             if(_tileUnderCursor != _none)
             {
                 if(_selectedPiece)
+                {
                     movePiece();
+                    selectPiece();
+                }
                 else
                     selectPiece();
             }
@@ -46,21 +50,23 @@ public class BoardManager : MonoBehaviour
         ChessPiece piece = _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y];
         if(!piece || (piece._color != _turn))
             return;
-
+       
         _selectedPiece = piece;
+        _allowedMoves = _selectedPiece.possibleMoves();
+        TileHighlight._instance.highlightPossibleMoves(_allowedMoves);
     }
 
     private void movePiece()
     {
-        if(_selectedPiece.possibleMove(_tileUnderCursor))
+        if(_allowedMoves[_tileUnderCursor.x, _tileUnderCursor.y])
         {
             _chessPieces[_selectedPiece._position.x, _selectedPiece._position.y] = null;
-            _selectedPiece.transform.position = getTileCenter(_tileUnderCursor);
+            _selectedPiece.transform.position = Util.getTileCenter(_tileUnderCursor);
             _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y] = _selectedPiece;
 
             _turn = _turn == ChessPiece.Color.Black ? ChessPiece.Color.White : ChessPiece.Color.Black;
         }
-
+        TileHighlight._instance.hideTileHighlights();
         _selectedPiece = null;
     }
 
@@ -99,24 +105,15 @@ public class BoardManager : MonoBehaviour
 	}
 
     private void spawnChessPieces(int index, Vector2Int position, Quaternion quaternion)
-	{
-        GameObject go = Instantiate(_chessPiecesPrefabs[index], getTileCenter(position), quaternion) as GameObject;
+    {
+        GameObject go = Instantiate(_chessPiecesPrefabs[index], Util.getTileCenter(position), quaternion) as GameObject;
         go.transform.SetParent(transform);
-		go.transform.localScale = go.transform.localScale * 0.5f;
+        go.transform.localScale = go.transform.localScale * 0.5f;
         _chessPieces[position.x, position.y] = go.GetComponent<ChessPiece>();
         _chessPieces[position.x, position.y]._position = position;
 
-		_activeChessPieces.Add(go); 
-	}
-
-    private Vector3 getTileCenter(Vector2Int position)
-	{
-		Vector3 origin = Vector3.zero;
-        origin.x = _tile_size * position.x + _tile_offset;
-        origin.z = _tile_size * position.y + _tile_offset; 
-
-		return origin;
-	}
+        _activeChessPieces.Add(go); 
+    }
 
 	private void spawnAllPieces()
 	{
