@@ -16,7 +16,7 @@ public class TileHighlight : MonoBehaviour
 
     private GameObject getHighlightObject()
     {
-        GameObject go = _tileHighlights.Find(g => !g.activeSelf);
+        var go = _tileHighlights.Find(g => !g.activeSelf);
         if(!go)
         {
             go = Instantiate(_tileHighlightPrefab);
@@ -32,7 +32,7 @@ public class TileHighlight : MonoBehaviour
             for(int j = 0 ; j < 8 ; j++)
                 if(moves[i, j])
                 {
-                    GameObject go = getHighlightObject();
+                    var go = getHighlightObject();
                     go.SetActive(true);
                     go.transform.position = Util.getTileCenter(new Vector2Int(i, j));
                 }

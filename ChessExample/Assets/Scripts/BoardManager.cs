@@ -18,6 +18,7 @@ public class BoardManager : MonoBehaviour
 
 	void Start()
 	{
+        _instance = this;
         _turn = ChessPiece.Color.Black;
         _chessPieces = new ChessPiece[8, 8];
 		_tileUnderCursor = _none;
@@ -47,7 +48,7 @@ public class BoardManager : MonoBehaviour
 
     private void selectPiece()
     {
-        ChessPiece piece = _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y];
+        var piece = _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y];
         if(!piece || (piece._color != _turn))
             return;
        
@@ -60,8 +61,22 @@ public class BoardManager : MonoBehaviour
     {
         if(_allowedMoves[_tileUnderCursor.x, _tileUnderCursor.y])
         {
+            var pieceInDestination = _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y];
+            if(pieceInDestination && pieceInDestination._color != _turn)
+            {
+                if(pieceInDestination.GetType() == typeof(King))
+                {
+                    //TODO: end the game
+                    return;
+                }
+
+                _activeChessPieces.Remove(pieceInDestination.gameObject);
+                Destroy(pieceInDestination.gameObject);
+            }
+
             _chessPieces[_selectedPiece._position.x, _selectedPiece._position.y] = null;
             _selectedPiece.transform.position = Util.getTileCenter(_tileUnderCursor);
+            _selectedPiece._position = _tileUnderCursor;
             _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y] = _selectedPiece;
 
             _turn = _turn == ChessPiece.Color.Black ? ChessPiece.Color.White : ChessPiece.Color.Black;
@@ -84,12 +99,12 @@ public class BoardManager : MonoBehaviour
 
 	private void drawChessboard()
 	{
-		Vector3 widthLine = Vector3.right * 8;
-		Vector3 heightLine = Vector3.forward * 8; 
+		var widthLine = Vector3.right * 8;
+		var heightLine = Vector3.forward * 8; 
 
 		for(int i = 0; i <= 8; i++)
 		{
-			Vector3 start = Vector3.forward * i;
+			var start = Vector3.forward * i;
 			Debug.DrawLine(start, start + widthLine);
 
 			start = Vector3.right * i;
@@ -98,7 +113,7 @@ public class BoardManager : MonoBehaviour
 
 		if(_tileUnderCursor != new Vector2Int(-1, -1))
 		{
-			Vector3 start = Vector3.forward * _tileUnderCursor.y + Vector3.right * _tileUnderCursor.x;
+			var start = Vector3.forward * _tileUnderCursor.y + Vector3.right * _tileUnderCursor.x;
 			Debug.DrawLine(start, start + new Vector3(1, 0, 1));
 			Debug.DrawLine(start + new Vector3(1, 0, 0), start + new Vector3(0, 0, 1));
 		}
@@ -106,7 +121,7 @@ public class BoardManager : MonoBehaviour
 
     private void spawnChessPieces(int index, Vector2Int position, Quaternion quaternion)
     {
-        GameObject go = Instantiate(_chessPiecesPrefabs[index], Util.getTileCenter(position), quaternion) as GameObject;
+        var go = Instantiate(_chessPiecesPrefabs[index], Util.getTileCenter(position), quaternion) as GameObject;
         go.transform.SetParent(transform);
         go.transform.localScale = go.transform.localScale * 0.5f;
         _chessPieces[position.x, position.y] = go.GetComponent<ChessPiece>();
@@ -138,7 +153,7 @@ public class BoardManager : MonoBehaviour
                 else if (j == 4)
 					index = 4; // queen
 
-                Quaternion quaternion = Quaternion.identity;
+                var quaternion = Quaternion.identity;
                 if(i >= 6) // white pieces
                 {
                     index += 6; 
