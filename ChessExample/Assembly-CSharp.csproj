@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Pieces\Knight.cs" />
      <Compile Include="Assets\Scripts\Pieces\Pawn.cs" />
      <Compile Include="Assets\Scripts\Pieces\Queen.cs" />
+     <Compile Include="Assets\Scripts\Pieces\RangePiece.cs" />
      <Compile Include="Assets\Scripts\Pieces\Rook.cs" />
      <Compile Include="Assets\Scripts\TileHighlight.cs" />
      <Compile Include="Assets\Scripts\Util.cs" />

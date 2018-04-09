@@ -23,6 +23,7 @@ public class BoardManager : MonoBehaviour
         _chessPieces = new ChessPiece[8, 8];
 		_tileUnderCursor = _none;
 		_activeChessPieces = new List<GameObject>();
+        TileHighlight._instance.hideTileHighlights();
 		spawnAllPieces();
 	}
 	
@@ -48,6 +49,9 @@ public class BoardManager : MonoBehaviour
 
     private void selectPiece()
     {
+        if(_tileUnderCursor == _none)
+            return;
+        
         var piece = _chessPieces[_tileUnderCursor.x, _tileUnderCursor.y];
         if(!piece || (piece._color != _turn))
             return;
@@ -66,7 +70,7 @@ public class BoardManager : MonoBehaviour
             {
                 if(pieceInDestination.GetType() == typeof(King))
                 {
-                    //TODO: end the game
+                    endGame();
                     return;
                 }
 
@@ -149,9 +153,10 @@ public class BoardManager : MonoBehaviour
 				else if(j == 2 || j == 5)
 					index = 0; // bishop
 				else if(j == 3)
-					index = 1; // king
+                    index = 4; // queen
                 else if (j == 4)
-					index = 4; // queen
+                    index = 1; // king
+					
 
                 var quaternion = Quaternion.identity;
                 if(i >= 6) // white pieces
@@ -164,4 +169,14 @@ public class BoardManager : MonoBehaviour
 			}
 		}
 	}
+
+    private void endGame()
+    {
+        Debug.Log(_turn + " wins");
+
+        foreach(var obj in _activeChessPieces)
+            Destroy(obj);
+
+        Start();
+    }
 }
