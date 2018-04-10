@@ -13,6 +13,8 @@ public class BoardManager : MonoBehaviour
     public ChessPiece[,] _chessPieces{ set; get;}
 	public List<GameObject> _chessPiecesPrefabs;
 	private List<GameObject> _activeChessPieces;
+    private Material _previousMat;
+    public Material _selectedMat;
     private ChessPiece _selectedPiece;
     private Vector2Int _tileUnderCursor;
 
@@ -57,6 +59,12 @@ public class BoardManager : MonoBehaviour
             return;
        
         _selectedPiece = piece;
+
+        //_previousMat = _selectedPiece.GetComponent<MeshRenderer>().material; 
+        //_previousMat = _selectedPiece.GetComponent<Material>();
+        //_selectedMat.mainTexture = _previousMat.mainTexture;
+        //_selectedPiece.GetComponent<MeshRenderer>().material = _selectedMat;
+
         _allowedMoves = _selectedPiece.possibleMoves();
         TileHighlight._instance.highlightPossibleMoves(_allowedMoves);
     }
