@@ -60,13 +60,28 @@ public class BoardManager : MonoBehaviour
        
         _selectedPiece = piece;
 
-        //_previousMat = _selectedPiece.GetComponent<MeshRenderer>().material; 
-        //_previousMat = _selectedPiece.GetComponent<Material>();
-        //_selectedMat.mainTexture = _previousMat.mainTexture;
-        //_selectedPiece.GetComponent<MeshRenderer>().material = _selectedMat;
+        // Set selection outline
+        _previousMat = _selectedPiece.GetComponentsInChildren<MeshRenderer>()[0].material;
+        _selectedMat.mainTexture = _previousMat.mainTexture;
+        ChangeMaterial(_selectedPiece, _selectedMat);
 
         _allowedMoves = _selectedPiece.possibleMoves();
         TileHighlight._instance.highlightPossibleMoves(_allowedMoves);
+    }
+
+    void ChangeMaterial(ChessPiece piece, Material newMat)
+    {
+        MeshRenderer[] children;
+        children = piece.GetComponentsInChildren<MeshRenderer>();
+        foreach(var rend in children)
+        {
+            var mats = new Material[rend.materials.Length];
+            for (var j = 0; j < rend.materials.Length; j++)
+            {
+                mats[j] = newMat;
+            }
+            rend.materials = mats;
+        }
     }
 
     private void movePiece()
@@ -93,6 +108,8 @@ public class BoardManager : MonoBehaviour
 
             _turn = _turn == ChessPiece.Color.Black ? ChessPiece.Color.White : ChessPiece.Color.Black;
         }
+
+        ChangeMaterial(_selectedPiece, _previousMat);
         TileHighlight._instance.hideTileHighlights();
         _selectedPiece = null;
     }
