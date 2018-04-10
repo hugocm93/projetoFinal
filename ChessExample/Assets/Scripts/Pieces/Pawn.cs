@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Pawn : ChessPiece
 {
-    //TODO: en passant
-
     public override bool[,] possibleMoves()
     {
         return _color == Color.White ? possibleMovesWhite() : possibleMovesBlack();
