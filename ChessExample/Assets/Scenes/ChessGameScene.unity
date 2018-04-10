@@ -441,6 +441,7 @@ MonoBehaviour:
   - {fileID: 1633224609000294, guid: 03825e973280c7e4788ee0d1339abcd0, type: 2}
   - {fileID: 1716085140368864, guid: 74c9f8e885fde444d8917ca97c841b4f, type: 2}
   _selectedMat: {fileID: 2100000, guid: 11290587b24254700b592979d4c57b21, type: 2}
+  _enPassant: {x: 0, y: 0}
 --- !u!4 &319360386
 Transform:
   m_ObjectHideFlags: 0

@@ -17,6 +17,9 @@ public class BoardManager : MonoBehaviour
     public Material _selectedMat;
     private ChessPiece _selectedPiece;
     private Vector2Int _tileUnderCursor;
+    public Vector2Int _enPassant;
+
+    //TODO: Castling
 
 	void Start()
 	{
@@ -24,6 +27,7 @@ public class BoardManager : MonoBehaviour
         _turn = ChessPiece.Color.Black;
         _chessPieces = new ChessPiece[8, 8];
 		_tileUnderCursor = _none;
+        _enPassant = _none;
 		_activeChessPieces = new List<GameObject>();
         TileHighlight._instance.hideTileHighlights();
 		spawnAllPieces();
@@ -101,6 +105,42 @@ public class BoardManager : MonoBehaviour
                 Destroy(pieceInDestination.gameObject);
             }
 
+            //En Passant
+            if(_enPassant == _tileUnderCursor)
+            {
+                if(_tileUnderCursor.y == 5) //white
+                {
+                    var piecePassant = _chessPieces[_tileUnderCursor.x, 4];
+                    _activeChessPieces.Remove(piecePassant.gameObject);
+                    Destroy(piecePassant.gameObject);
+                }
+                else if(_tileUnderCursor.y == 2) //black
+                {
+                    var piecePassant = _chessPieces[_tileUnderCursor.x, 3];
+                    _activeChessPieces.Remove(piecePassant.gameObject);
+                    Destroy(piecePassant.gameObject);
+                }
+            }
+            _enPassant = _none;
+            if(_selectedPiece.GetType() == typeof(Pawn))
+            {
+                if(_selectedPiece._position.y == 1 && _tileUnderCursor.y == 3) //First move - black pawn(enPassant)
+                    _enPassant = _tileUnderCursor + new Vector2Int(0, -1);
+                else if(_selectedPiece._position.y == 6 && _tileUnderCursor.y == 4) //First move - white pawn(enPassant)
+                    _enPassant = _tileUnderCursor + new Vector2Int(0, 1);
+                else if(_tileUnderCursor.y == 7 || _tileUnderCursor.y == 0) //Promotion
+                {
+                    int index = 4; // queen
+                    if(_selectedPiece._color == ChessPiece.Color.White)
+                        index += 6;
+                    
+                    var queen = spawnChessPieces(index, _selectedPiece._position, _selectedPiece._color);
+                    _activeChessPieces.Remove(_selectedPiece.gameObject);
+                    Destroy(_selectedPiece.gameObject);
+                    _selectedPiece = queen;
+                }
+            }
+
             _chessPieces[_selectedPiece._position.x, _selectedPiece._position.y] = null;
             _selectedPiece.transform.position = Util.getTileCenter(_tileUnderCursor);
             _selectedPiece._position = _tileUnderCursor;
@@ -148,8 +188,14 @@ public class BoardManager : MonoBehaviour
 		}
 	}
 
-    private void spawnChessPieces(int index, Vector2Int position, Quaternion quaternion)
+    private ChessPiece spawnChessPieces(int index, Vector2Int position, ChessPiece.Color color)
     {
+        var quaternion = Quaternion.identity;
+        if(color == ChessPiece.Color.White) // white pieces
+        {
+            quaternion = Quaternion.Euler(0, 180, 0); //face pieces to the center of the board
+        }
+
         var go = Instantiate(_chessPiecesPrefabs[index], Util.getTileCenter(position), quaternion) as GameObject;
         go.transform.SetParent(transform);
         go.transform.localScale = go.transform.localScale * 0.5f;
@@ -157,6 +203,8 @@ public class BoardManager : MonoBehaviour
         _chessPieces[position.x, position.y]._position = position;
 
         _activeChessPieces.Add(go); 
+
+        return go.GetComponent<ChessPiece>();
     }
 
 	private void spawnAllPieces()
@@ -182,15 +230,11 @@ public class BoardManager : MonoBehaviour
                 else if (j == 4)
                     index = 1; // king
 					
-
-                var quaternion = Quaternion.identity;
-                if(i >= 6) // white pieces
-                {
+                var color = i >= 6 ? ChessPiece.Color.White : ChessPiece.Color.Black;
+                if(color == ChessPiece.Color.White)
                     index += 6; 
-                    quaternion = Quaternion.Euler(0, 180, 0); //face pieces to the center of the board
-                }
                     
-                spawnChessPieces(index, new Vector2Int(j, i), quaternion);
+                spawnChessPieces(index, new Vector2Int(j, i), color);
 			}
 		}
 	}

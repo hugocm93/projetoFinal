@@ -22,7 +22,7 @@ public class Pawn : ChessPiece
                 continue;
 
             var p = BoardManager._instance._chessPieces[pos.x, pos.y];
-            if(p && (p._color != color))
+            if(p && (p._color != color) || (BoardManager._instance._enPassant == pos))
                 b[pos.x, pos.y] = true;
         }
             
