@@ -20,6 +20,7 @@ public class BoardManager : MonoBehaviour
     public Vector2Int _enPassant;
 
     //TODO: Castling
+    //TODO: king can't move to a position that would cause a check mate
 
 	void Start()
 	{
