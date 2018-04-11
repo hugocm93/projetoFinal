@@ -29,8 +29,9 @@ public class BoardManager : MonoBehaviour
 		_tileUnderCursor = _none;
         _enPassant = _none;
 		_activeChessPieces = new List<GameObject>();
-        TileHighlight._instance.hideTileHighlights();
 		spawnAllPieces();
+        if(TileHighlight._instance)
+            TileHighlight._instance.hideTileHighlights();
 	}
 	
 	private void Update()
