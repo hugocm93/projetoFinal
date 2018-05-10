@@ -51,8 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Chess\Demo\Scripts\Main.cs" />
-     <Compile Include="Assets\Chess\Scripts\ChessUiEngine.cs" />
      <Compile Include="Assets\Scripts\BoardManager.cs" />
      <Compile Include="Assets\Scripts\Pieces\Bishop.cs" />
      <Compile Include="Assets\Scripts\Pieces\ChessPiece.cs" />
@@ -64,6 +62,7 @@
      <Compile Include="Assets\Scripts\Pieces\Rook.cs" />
      <Compile Include="Assets\Scripts\TileHighlight.cs" />
      <Compile Include="Assets\Scripts\Util.cs" />
+     <Compile Include="Assets\Scripts\VirtualButtonsHandler.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultInitializationErrorHandler.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultTrackableEventHandler.cs" />
      <None Include="Assets\Vuforia\Shaders\ColoredLines.shader" />

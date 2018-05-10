@@ -13,11 +13,19 @@ public class BoardManager : MonoBehaviour
     public ChessPiece[,] _chessPieces{ set; get;}
 	public List<GameObject> _chessPiecesPrefabs;
 	private List<GameObject> _activeChessPieces;
+
     private Material _previousMat;
     public Material _selectedMat;
     private ChessPiece _selectedPiece;
     private Vector2Int _tileUnderCursor;
     public Vector2Int _enPassant;
+
+    public GameObject _cylinderPrefab;
+    private GameObject _cylinder;
+
+    public GameObject _cursorPrefab;
+    private GameObject _cursor;
+    private GameObject _cursorTarget;
 
     //TODO: Castling
     //TODO: king can't move to a position that would cause a check mate
@@ -33,27 +41,25 @@ public class BoardManager : MonoBehaviour
 		spawnAllPieces();
         if(TileHighlight._instance)
             TileHighlight._instance.hideTileHighlights();
+
+        _cursor = Instantiate(_cursorPrefab, Util.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
+        _cursor.transform.SetParent(transform);
+        _cursor.transform.position = new Vector3(0, 20, 0);
+        _cursorTarget = GameObject.Find("cursorTarget");
 	}
 	
 	private void Update()
 	{
 		updateSelection();
 		drawChessboard();
-
-        if(Input.GetMouseButtonDown(0)) // left button
-        {
-            if(_tileUnderCursor != _none)
-            {
-                if(_selectedPiece)
-                {
-                    movePiece();
-                    selectPiece();
-                }
-                else
-                    selectPiece();
-            }
-        }
+        updateCursor();
 	}
+
+    private void updateCursor()
+    {
+        var pos = _cursorTarget.transform.position;
+        _cursor.transform.position = new Vector3(pos.x, _cursor.transform.position.y, pos.z);
+    }
 
     private void selectPiece()
     {
@@ -157,16 +163,30 @@ public class BoardManager : MonoBehaviour
     }
 
 	private void updateSelection()
-	{
-		if(!Camera.main)
-			return;
-
-		RaycastHit hit;
-		if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 25.0f, LayerMask.GetMask("ChessPlane")))
-			_tileUnderCursor = new Vector2Int((int)hit.point.x, (int)hit.point.z);
-		else
-            _tileUnderCursor = _none;
+    {
+        if(_tileUnderCursor == _none)
+            return;
+        
+        if(_selectedPiece)
+        {
+            movePiece();
+            selectPiece();
+        }
+        else
+            selectPiece();
 	}
+
+    public void selectButtonCicked()
+    {
+        _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util._scale), 
+                                          (int)(_cursor.transform.position.z / Util._scale));
+        Debug.Log(_tileUnderCursor);
+        if(!ChessPiece.onBoard(_tileUnderCursor))
+        {
+            _tileUnderCursor = _none;
+            return;
+        }
+    }
 
 	private void drawChessboard()
 	{
@@ -180,13 +200,6 @@ public class BoardManager : MonoBehaviour
 
 			start = Vector3.right * i;
 			Debug.DrawLine(start, start + heightLine);
-		}
-
-		if(_tileUnderCursor != new Vector2Int(-1, -1))
-		{
-			var start = Vector3.forward * _tileUnderCursor.y + Vector3.right * _tileUnderCursor.x;
-			Debug.DrawLine(start, start + new Vector3(1, 0, 1));
-			Debug.DrawLine(start + new Vector3(1, 0, 0), start + new Vector3(0, 0, 1));
 		}
 	}
 

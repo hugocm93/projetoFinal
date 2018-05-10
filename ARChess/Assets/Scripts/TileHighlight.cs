@@ -20,6 +20,7 @@ public class TileHighlight : MonoBehaviour
         if(!go)
         {
             go = Instantiate(_tileHighlightPrefab);
+            go.transform.SetParent(transform);
             _tileHighlights.Add(go);
         }
 

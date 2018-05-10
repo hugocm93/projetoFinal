@@ -11,7 +11,7 @@ public abstract class ChessPiece : MonoBehaviour
 
     public abstract bool[,] possibleMoves();
         
-    protected bool onBoard(Vector2Int v)
+    public static bool onBoard(Vector2Int v)
     {
         return (v.x >= 0 && v.x < 8) && (v.y >= 0 && v.y < 8);
     }
