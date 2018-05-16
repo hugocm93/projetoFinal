@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SharpChess.Model;
 
 public class BoardManager : MonoBehaviour
 {
@@ -46,6 +47,9 @@ public class BoardManager : MonoBehaviour
         _cursor.transform.SetParent(transform);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("cursorTarget");
+
+        Game.New();
+        Game.PlayerToPlay = Game.PlayerBlack;
 	}
 	
 	private void Update()
@@ -147,7 +151,7 @@ public class BoardManager : MonoBehaviour
                     Destroy(_selectedPiece.gameObject);
                     _selectedPiece = queen;
                 }
-            }
+            }              
 
             _chessPieces[_selectedPiece._position.x, _selectedPiece._position.y] = null;
             _selectedPiece.transform.position = Util.getTileCenter(_tileUnderCursor);
