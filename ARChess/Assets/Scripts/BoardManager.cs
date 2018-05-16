@@ -48,9 +48,19 @@ public class BoardManager : MonoBehaviour
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("cursorTarget");
 
-        Game.New();
+        Game.BoardPositionChanged += dummy;
+        Game.GamePaused += dummy;
+        Game.GameResumed += dummy;
+        Game.GameSaved += dummy;
+        Game.SettingsUpdated += dummy;
         Game.PlayerToPlay = Game.PlayerBlack;
+        Game.New();
 	}
+
+    private void dummy()
+    {
+        Debug.Log("Dummy");
+    }
 	
 	private void Update()
 	{

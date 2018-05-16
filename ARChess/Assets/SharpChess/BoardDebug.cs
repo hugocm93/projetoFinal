@@ -93,8 +93,8 @@ namespace SharpChess.Model
         /// </example>
         public static void DebugDisplay()
         {
-            Debug.Write(DebugGetBoard());
-            Debug.Write(". ");
+            Debug.WriteLine(DebugGetBoard());
+            Debug.WriteLine(". ");
         }
 
         #endregion

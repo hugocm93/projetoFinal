@@ -559,7 +559,7 @@ namespace SharpChess.Model
             SuspendPondering();
 
             NewInternal(fenString);
-            SaveBackup();
+            //SaveBackup();                      //Abortando no unity
             SendBoardPositionChangeEvent();
             ResumePondering();
         }
