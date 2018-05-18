@@ -15,7 +15,7 @@ public class VirtualButtonsHandler : MonoBehaviour,  IVirtualButtonEventHandler{
     public void OnButtonPressed(VirtualButtonBehaviour vb)
     {
         print("Pressed" + vb.name);
-        BoardManager._instance.selectButtonCicked();
+        BoardManager._instance.selectButtonClicked();
     }
 
     public void OnButtonReleased(VirtualButtonBehaviour vb)

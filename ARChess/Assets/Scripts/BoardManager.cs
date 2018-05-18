@@ -4,6 +4,7 @@ using UnityEngine;
 using Vuforia;
 using SharpChess.Model;
 
+
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager _instance{set; get;}
@@ -59,6 +60,7 @@ public class BoardManager : MonoBehaviour
         Game.New();
 	}
 
+
     private void dummy()
     {
         Debug.Log("Dummy");
@@ -66,6 +68,7 @@ public class BoardManager : MonoBehaviour
 	
 	private void Update()
 	{
+        mouseLeftButtonClicked();
 		updateSelection();
 		drawChessboard();
         updateCursor();
@@ -197,8 +200,8 @@ public class BoardManager : MonoBehaviour
         else
             selectPiece();
 	}
-
-    public void selectButtonCicked()
+      
+    public void selectButtonClicked()
     {
         _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util._scale), 
                                           (int)(_cursor.transform.position.z / Util._scale));
@@ -208,6 +211,21 @@ public class BoardManager : MonoBehaviour
             _tileUnderCursor = _none;
             return;
         }
+    }
+
+    public void mouseLeftButtonClicked()
+    {
+        if(!Input.GetMouseButtonDown(0))
+            return;
+            
+        if(!Camera.main)
+            return;
+
+        RaycastHit hit;
+        if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
+            _tileUnderCursor = new Vector2Int((int)(hit.point.x / Util._scale), (int)(hit.point.z / Util._scale));
+        else
+            _tileUnderCursor = _none;
     }
 
 	private void drawChessboard()
