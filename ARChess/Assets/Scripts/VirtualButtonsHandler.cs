@@ -8,7 +8,7 @@ public class VirtualButtonsHandler : MonoBehaviour,  IVirtualButtonEventHandler{
 
 	void Start()
     {
-        _button = GameObject.Find("VirtualButton");
+        _button = GameObject.Find("SelectVirtualButton");
         _button.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
 	}   
 

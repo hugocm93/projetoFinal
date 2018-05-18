@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vuforia;
 using SharpChess.Model;
 
 public class BoardManager : MonoBehaviour
@@ -31,6 +32,7 @@ public class BoardManager : MonoBehaviour
     //TODO: Castling
     //TODO: king can't move to a position that would cause a check mate
 
+
 	void Start()
 	{
         _instance = this;
@@ -46,7 +48,7 @@ public class BoardManager : MonoBehaviour
         _cursor = Instantiate(_cursorPrefab, Util.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
         _cursor.transform.position = new Vector3(0, 20, 0);
-        _cursorTarget = GameObject.Find("cursorTarget");
+        _cursorTarget = GameObject.Find("CursorTarget");
 
         Game.BoardPositionChanged += dummy;
         Game.GamePaused += dummy;
@@ -71,6 +73,12 @@ public class BoardManager : MonoBehaviour
 
     private void updateCursor()
     {
+        if(!_cursorTarget)
+        {
+            _cursor.transform.position = new Vector3(-1000, -1000, -1000);
+            return;
+        }
+        
         var pos = _cursorTarget.transform.position;
         _cursor.transform.position = new Vector3(pos.x, _cursor.transform.position.y, pos.z);
     }

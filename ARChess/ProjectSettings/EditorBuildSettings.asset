@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/NoARChessBoard.unity
+    guid: b4d63abdc10b64cb0965824ed504238d
+  - enabled: 1
+    path: Assets/ARChessBoard.unity
+    guid: a74eae2c4216a47f2a03873d52892918

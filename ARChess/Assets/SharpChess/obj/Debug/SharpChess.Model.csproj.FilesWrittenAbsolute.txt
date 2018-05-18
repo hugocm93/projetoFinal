@@ -1,5 +1,0 @@
-/Users/hugocm93/Downloads/SharpChess-master/SharpChess.Model/obj/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
-/Users/hugocm93/Downloads/SharpChess-master/SharpChess.Model/bin/Debug/SharpChess.Model.dll.mdb
-/Users/hugocm93/Downloads/SharpChess-master/SharpChess.Model/bin/Debug/SharpChess.Model.dll
-/Users/hugocm93/Downloads/SharpChess-master/SharpChess.Model/obj/Debug/SharpChess.Model.dll
-/Users/hugocm93/Downloads/SharpChess-master/SharpChess.Model/obj/Debug/SharpChess.Model.dll.mdb
