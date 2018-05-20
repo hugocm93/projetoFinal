@@ -559,7 +559,7 @@ namespace SharpChess.Model
             SuspendPondering();
 
             NewInternal(fenString);
-            //SaveBackup();                      //Abortando no unity
+            SaveBackup();                      
             SendBoardPositionChangeEvent();
             ResumePondering();
         }
@@ -1123,6 +1123,8 @@ namespace SharpChess.Model
         /// </summary>
         private static void SaveBackup()
         {
+            return; //Pois esta abortando no unity
+
             if (!WinBoard.Active)
             {
                 // Only save backups if not using WinBoard.

@@ -12,39 +12,47 @@ public class BoardManager : MonoBehaviour
 	public List<GameObject> _chessPiecesPrefabs;
     public Material _selectedMat;
     public GameObject _cursorPrefab;
-    public enum Color{White, Black};
 
     private Moves _possibleMoves;
     private Square _squareFrom;
     private Square _squareTo;
     private Square _squareLastFrom;
     private Square _squareLastTo;
+    private Piece _selectedPiece;
+
+    private Dictionary<Piece, GameObject> _piecesGameObject;
+
+    private System.Object _toBeDestroyedthreadLocker;
+    private List<KeyValuePair<Piece, GameObject>> _toBeDestroyed;
+
+    private System.Object _toBeRemovedthreadLocker;
+    private List<Util.Pair<GameObject, Vector3>> _toBeMoved;
 
     private Material _previousMat;
     private Vector2Int _tileUnderCursor;
     private GameObject _cursor;
     private GameObject _cursorTarget;
-	private List<GameObject> _activeChessPieces;
     private readonly Vector2Int _none = new Vector2Int(-1, -1);
-    private GameObject _selectedPiece;
-
-    private bool[,] _allowedMoves{ get; set;}
-
-    public Vector2Int _enPassant;
 
 	void Start()
 	{
         // Construtor
         _instance = this;
 		_tileUnderCursor = _none;
-		_activeChessPieces = new List<GameObject>();
+        _piecesGameObject = new Dictionary<Piece, GameObject>();
+
+        _toBeDestroyedthreadLocker = new System.Object();
+        _toBeDestroyed = new List<KeyValuePair<Piece, GameObject>>();
+
+        _toBeRemovedthreadLocker = new System.Object();
+        _toBeMoved = new List<Util.Pair<GameObject, Vector3>>();
 
         // Inicializar highlights
         if(TileHighlight._instance)
             TileHighlight._instance.hideTileHighlights();
 
         // Desenhar cursor
-        _cursor = Instantiate(_cursorPrefab, Util.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
+        _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
@@ -55,7 +63,11 @@ public class BoardManager : MonoBehaviour
         Game.GameResumed += dummy;
         Game.GameSaved += dummy;
         Game.SettingsUpdated += dummy;
-        Game.PlayerToPlay = Game.PlayerBlack;
+        Game.PlayerWhite.Brain.MoveConsideredEvent += dummy;
+        Game.PlayerBlack.Brain.MoveConsideredEvent += dummy;
+        Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
+        Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
+        Game.PlayerToPlay = Game.PlayerWhite;
         Game.New();
 	}
 
@@ -72,28 +84,46 @@ public class BoardManager : MonoBehaviour
 
     private void updatePieces()
     {
-        Debug.Log("updatePieces");
-        Square square;
+        foreach(var item in _piecesGameObject)
+            if(!item.Key.IsInPlay)
+            {
+                lock(_toBeDestroyedthreadLocker)
+                {
+                    _toBeDestroyed.Add(item);
+                }
+            }
 
+        Square square;
         for (int intOrdinal = 0; intOrdinal < Board.SquareCount; intOrdinal++)
         {
             square = Board.GetSquare(intOrdinal);
-
             if(square != null && square.Piece != null)
             {
-                int index = -1;
-                switch(square.Piece.Name)
+                try
                 {
-                    case Piece.PieceNames.Pawn: index = 3; break;
-                    case Piece.PieceNames.Rook: index = 5; break;
-                    case Piece.PieceNames.Knight: index = 2; break;
-                    case Piece.PieceNames.Bishop: index = 0; break;
-                    case Piece.PieceNames.Queen: index = 4; break;
-                    case Piece.PieceNames.King: index = 1; break;
+                    var go = _piecesGameObject[square.Piece];
+                    var positionTo = Util.Constants.getTileCenter(new Vector2Int(square.File, square.Rank));
+                    lock(_toBeRemovedthreadLocker)
+                    {
+                        _toBeMoved.Add(new Util.Pair<GameObject, Vector3>(go, positionTo));
+                    }
                 }
+                catch(KeyNotFoundException)
+                {
+                    int index = -1;
+                    switch(square.Piece.Name)
+                    {
+                        case Piece.PieceNames.Pawn: index = 3; break;
+                        case Piece.PieceNames.Rook: index = 5; break;
+                        case Piece.PieceNames.Knight: index = 2; break;
+                        case Piece.PieceNames.Bishop: index = 0; break;
+                        case Piece.PieceNames.Queen: index = 4; break;
+                        case Piece.PieceNames.King: index = 1; break;
+                    }
 
-                var color = square.Piece.Player.Colour;
-                spawnChessPieces(index, new Vector2Int(square.File, square.Rank), color);
+                    var color = square.Piece.Player.Colour;
+                    spawnChessPiece(index, new Vector2Int(square.File, square.Rank), color);
+                }
             }
         }
     }
@@ -106,12 +136,38 @@ public class BoardManager : MonoBehaviour
 	{
         mouseLeftButtonClicked();
         updateCursor();
-        updateSelection();
+        movePieces();
+        destroyOldGameObjects();
 
 #if DEBUG
         drawChessboard();
 #endif
 	}
+
+    private void movePieces()
+    {
+        lock(_toBeRemovedthreadLocker)
+        {
+            foreach(var item in _toBeMoved)
+            {
+                item.first.transform.position = item.second;
+            }
+            _toBeMoved.Clear();
+        }
+    }
+
+    private void destroyOldGameObjects()
+    {
+        lock(_toBeDestroyedthreadLocker)
+        {
+            foreach(var item in _toBeDestroyed)
+            {
+                _piecesGameObject.Remove(item.Key);
+                Destroy(item.Value);
+            }
+            _toBeDestroyed.Clear();
+        }
+    }
 
     public void mouseLeftButtonClicked()
     {
@@ -124,9 +180,11 @@ public class BoardManager : MonoBehaviour
         RaycastHit hit;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
-            _tileUnderCursor = new Vector2Int((int)(hit.point.x / Util._scale), (int)(hit.point.z / Util._scale));
+            _tileUnderCursor = new Vector2Int((int)(hit.point.x / Util.Constants._scale), (int)(hit.point.z / Util.Constants._scale));
         else
             _tileUnderCursor = _none;
+
+        updateSelection();
     }
 
     private void updateCursor()
@@ -146,17 +204,25 @@ public class BoardManager : MonoBehaviour
         if(_tileUnderCursor == _none)
             return;
        
-        // //TODO: Atualizar peca selecionada
-        //_selectedPiece = piece;
+        var piece = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
+        if(piece == null || piece.Player != Game.PlayerToPlay)
+            return;
+
+        _selectedPiece = piece;
+        var go = _piecesGameObject[_selectedPiece];
 
         // Set selection outline
-        _previousMat = _selectedPiece.GetComponentsInChildren<MeshRenderer>()[0].material;
+        _previousMat = go.GetComponentsInChildren<MeshRenderer>()[0].material;
         _selectedMat.mainTexture = _previousMat.mainTexture;
-        changeMaterial(_selectedPiece, _selectedMat);
+        changeMaterial(go, _selectedMat);
 
-        //TODO: atualizar tiles de movimentos possiveis
-        //_allowedMoves = _selectedPiece.possibleMoves();
-        //TileHighlight._instance.highlightPossibleMoves(_allowedMoves);
+        bool[,] allowedMoves = new bool[8, 8];
+        Moves legalMoves = new Moves();
+        _selectedPiece.GenerateLegalMoves(legalMoves);
+        foreach(Move move in legalMoves)
+            allowedMoves[move.To.File, move.To.Rank] = true;
+            
+        TileHighlight._instance.highlightPossibleMoves(allowedMoves);
     }
 
     private void changeMaterial(GameObject piece, Material newMat)
@@ -176,9 +242,22 @@ public class BoardManager : MonoBehaviour
 
     private void movePiece()
     {
-        //changeMaterial(_selectedPiece, _previousMat);
-        //TileHighlight._instance.hideTileHighlights();
-        //_selectedPiece = null;
+        var squareTo = Board.GetSquare(_tileUnderCursor.x, _tileUnderCursor.y);
+        Moves legalMoves = new Moves();
+        _selectedPiece.GenerateLegalMoves(legalMoves);
+        foreach(Move move in legalMoves)
+        {
+            if(move.To != squareTo)
+                continue;
+
+            //var pieceInDestination = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
+
+            Game.MakeAMove(move.Name, move.Piece, move.To);
+        }
+
+        changeMaterial(_piecesGameObject[_selectedPiece], _previousMat);
+        TileHighlight._instance.hideTileHighlights();
+        _selectedPiece = null;
     }
 
 	private void updateSelection()
@@ -186,24 +265,28 @@ public class BoardManager : MonoBehaviour
         if(_tileUnderCursor == _none)
             return;
         
-        if(_selectedPiece)
+        if(_selectedPiece != null)
         {
             movePiece();
             selectPiece();
         }
         else
+        {
             selectPiece();
+        }
 	}
       
     public void selectButtonClicked()
     {
-        _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util._scale), 
-                                          (int)(_cursor.transform.position.z / Util._scale));
+        _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util.Constants._scale), 
+                                          (int)(_cursor.transform.position.z / Util.Constants._scale));
         if(!onBoard(_tileUnderCursor))
         {
             _tileUnderCursor = _none;
             return;
         }
+
+        updateSelection();
     }
 
     private bool onBoard(Vector2Int v)
@@ -226,23 +309,24 @@ public class BoardManager : MonoBehaviour
 		}
 	}
 
-    private void spawnChessPieces(int index, Vector2Int position, Player.PlayerColourNames color)
+    private void spawnChessPiece(int index, Vector2Int position, Player.PlayerColourNames color)
     {
         var quaternion = Quaternion.identity;
         if(color == Player.PlayerColourNames.Black) // black pieces
             quaternion = Quaternion.Euler(0, 180, 0); //face pieces to the center of the board
 
-        var go = Instantiate(_chessPiecesPrefabs[index], Util.getTileCenter(position), quaternion) as GameObject;
+        var go = Instantiate(_chessPiecesPrefabs[index], Util.Constants.getTileCenter(position), quaternion) as GameObject;
         go.transform.SetParent(transform);
         go.transform.localScale = go.transform.localScale * 5.0f;
 
-        _activeChessPieces.Add(go); 
+        var piece = Board.GetPiece(position.x, position.y);
+        _piecesGameObject[piece] = go;
     }
         
     private void endGame()
     {
-        foreach(var obj in _activeChessPieces)
-            Destroy(obj);
+        foreach(var item in _piecesGameObject)
+            Destroy(item.Value);
 
         Start();
     }

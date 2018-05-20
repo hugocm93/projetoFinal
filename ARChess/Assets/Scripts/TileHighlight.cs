@@ -35,7 +35,7 @@ public class TileHighlight : MonoBehaviour
                 {
                     var go = getHighlightObject();
                     go.SetActive(true);
-                    go.transform.position = Util.getTileCenter(new Vector2Int(i, j));
+                    go.transform.position = Util.Constants.getTileCenter(new Vector2Int(i, j));
                 }
     }
 
