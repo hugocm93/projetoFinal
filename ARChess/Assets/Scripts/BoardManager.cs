@@ -135,6 +135,8 @@ public class BoardManager : MonoBehaviour
         	
 	private void Update()
 	{
+        //updatePieces(); //remover
+
         mouseLeftButtonClicked();
         updateCursor();
         movePieces();
@@ -194,7 +196,7 @@ public class BoardManager : MonoBehaviour
     {
         if(_toBeMoved.Count != 0)
             return;
-        
+
         if(!Input.GetMouseButtonDown(0))
             return;
             
@@ -302,8 +304,10 @@ public class BoardManager : MonoBehaviour
       
     public void selectButtonClicked()
     {
+        Debug.Log("button pressed");
         if(_toBeMoved.Count != 0)
             return;
+        Debug.Log("after check");
         
         _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util.Constants._scale), 
                                           (int)(_cursor.transform.position.z / Util.Constants._scale));

@@ -772,7 +772,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mName: 1
-  mSensitivity: 1
+  mSensitivity: 0
   mHasUpdatedPose: 1
   mPrevTransform:
     e00: 10

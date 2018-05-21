@@ -1,23 +1,22 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.AttachToProcess" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SharpChess/Game.cs">
     <Files>
-      <File FileName="Assets/Scripts/BoardManager.cs" Line="102" Column="20" />
+      <File FileName="Assets/Scripts/BoardManager.cs" Line="62" Column="64" />
       <File FileName="Assets/SharpChess/Board.cs" Line="39" Column="5" />
       <File FileName="Assets/Scripts/TileHighlight.cs" Line="38" Column="50" />
-      <File FileName="Assets/SharpChess/Game.cs" Line="1019" Column="33" />
-      <File FileName="Assets/SharpChess/AI/Brain.cs" Line="316" Column="1" />
+      <File FileName="Assets/SharpChess/Game.cs" Line="104" Column="25" />
+      <File FileName="Assets/SharpChess/AI/Brain.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Constants.cs" Line="28" Column="35" />
+      <File FileName="Assets/Scripts/NoARPlease.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/UICallbacks.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/VirtualButtonsHandler.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="ARChess" expanded="True">
-            <Node name="Assembly-CSharp" expanded="True">
-              <Node name="SharpChess" expanded="True">
-                <Node name="Game.cs" selected="True" />
-              </Node>
-            </Node>
+            <Node name="Assembly-CSharp" expanded="True" />
             <Node name="Assembly-CSharp-Editor" expanded="True" />
           </Node>
         </State>
@@ -25,7 +24,12 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint enabled="false" file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/Scripts/BoardManager.cs" line="87" column="1" />
+      <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/Scripts/BoardManager.cs" line="82" column="1" />
+      <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/Scripts/BoardManager.cs" line="88" column="1" />
+      <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/Scripts/BoardManager.cs" line="39" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

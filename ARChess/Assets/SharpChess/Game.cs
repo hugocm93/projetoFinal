@@ -35,7 +35,9 @@ namespace SharpChess.Model
     using System.Reflection;
     using System.Xml;
 
+    #if WINDOWS
     using Microsoft.Win32;
+    #endif
 
     using SharpChess.Model.AI;
 
@@ -87,6 +89,7 @@ namespace SharpChess.Model
             PlayerWhite.Brain.ReadyToMakeMoveEvent += PlayerReadyToMakeMove;
             PlayerBlack.Brain.ReadyToMakeMoveEvent += PlayerReadyToMakeMove;
 
+            #if WINDOWS
             RegistryKey registryKeySoftware = Registry.CurrentUser.OpenSubKey("Software", true);
             if (registryKeySoftware != null)
             {
@@ -134,6 +137,7 @@ namespace SharpChess.Model
                     }
                 }
             }
+            #endif
 
             // OpeningBook.BookConvert(Game.PlayerWhite);
         }
@@ -724,6 +728,8 @@ namespace SharpChess.Model
             PlayerWhite.Brain.AbortThinking();
             PlayerBlack.Brain.AbortThinking();
 
+            #if WINDOWS
+
             RegistryKey registryKeySoftware = Registry.CurrentUser.OpenSubKey("Software", true);
             if (registryKeySoftware != null)
             {
@@ -735,6 +741,7 @@ namespace SharpChess.Model
                     registryKeySharpChess.SetValue("ShowThinking", ShowThinking ? "1" : "0");
                 }
             }
+            #endif
         }
 
         /// <summary>
@@ -1123,8 +1130,7 @@ namespace SharpChess.Model
         /// </summary>
         private static void SaveBackup()
         {
-            return; //Pois esta abortando no unity
-
+            return; //Aborta no unity
             if (!WinBoard.Active)
             {
                 // Only save backups if not using WinBoard.
