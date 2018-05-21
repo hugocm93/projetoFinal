@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Vuforia;
 using SharpChess.Model;
@@ -22,11 +23,11 @@ public class BoardManager : MonoBehaviour
 
     private Dictionary<Piece, GameObject> _piecesGameObject;
 
-    private System.Object _toBeDestroyedthreadLocker;
+    private System.Object _toBeDestroyedThreadLocker;
     private List<KeyValuePair<Piece, GameObject>> _toBeDestroyed;
 
-    private System.Object _toBeRemovedthreadLocker;
-    private List<Util.Pair<GameObject, Vector3>> _toBeMoved;
+    private System.Object _toBeMovedThreadLocker;
+    private List<Util.Pair<Piece, Vector3>> _toBeMoved;
 
     private Material _previousMat;
     private Vector2Int _tileUnderCursor;
@@ -41,11 +42,11 @@ public class BoardManager : MonoBehaviour
 		_tileUnderCursor = _none;
         _piecesGameObject = new Dictionary<Piece, GameObject>();
 
-        _toBeDestroyedthreadLocker = new System.Object();
+        _toBeDestroyedThreadLocker = new System.Object();
         _toBeDestroyed = new List<KeyValuePair<Piece, GameObject>>();
 
-        _toBeRemovedthreadLocker = new System.Object();
-        _toBeMoved = new List<Util.Pair<GameObject, Vector3>>();
+        _toBeMovedThreadLocker = new System.Object();
+        _toBeMoved = new List<Util.Pair<Piece, Vector3>>();
 
         // Inicializar highlights
         if(TileHighlight._instance)
@@ -68,6 +69,7 @@ public class BoardManager : MonoBehaviour
         Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerToPlay = Game.PlayerWhite;
+        Game.ShowThinking = true;
         Game.New();
 	}
 
@@ -79,7 +81,6 @@ public class BoardManager : MonoBehaviour
     private void BoardPositionChangedEvent()
     {
         updatePieces();
-        updateHighlights();
     }
 
     private void updatePieces()
@@ -87,7 +88,7 @@ public class BoardManager : MonoBehaviour
         foreach(var item in _piecesGameObject)
             if(!item.Key.IsInPlay)
             {
-                lock(_toBeDestroyedthreadLocker)
+                lock(_toBeDestroyedThreadLocker)
                 {
                     _toBeDestroyed.Add(item);
                 }
@@ -101,12 +102,13 @@ public class BoardManager : MonoBehaviour
             {
                 try
                 {
-                    var go = _piecesGameObject[square.Piece];
                     var positionTo = Util.Constants.getTileCenter(new Vector2Int(square.File, square.Rank));
-                    lock(_toBeRemovedthreadLocker)
+                    var go = _piecesGameObject[square.Piece];
+                    lock(_toBeMovedThreadLocker)
                     {
-                        _toBeMoved.Add(new Util.Pair<GameObject, Vector3>(go, positionTo));
+                        _toBeMoved.Add(new Util.Pair<Piece, Vector3>(square.Piece, positionTo));
                     }
+
                 }
                 catch(KeyNotFoundException)
                 {
@@ -122,16 +124,15 @@ public class BoardManager : MonoBehaviour
                     }
 
                     var color = square.Piece.Player.Colour;
+                    if(color == Player.PlayerColourNames.White)
+                        index += 6;
+                    
                     spawnChessPiece(index, new Vector2Int(square.File, square.Rank), color);
                 }
             }
         }
     }
-
-    private void updateHighlights()
-    {
-    }
-	
+        	
 	private void Update()
 	{
         mouseLeftButtonClicked();
@@ -146,19 +147,39 @@ public class BoardManager : MonoBehaviour
 
     private void movePieces()
     {
-        lock(_toBeRemovedthreadLocker)
+        lock(_toBeMovedThreadLocker)
         {
+            List<Util.Pair<Piece, Vector3>> done = new List<Util.Pair<Piece, Vector3>>();
             foreach(var item in _toBeMoved)
             {
-                item.first.transform.position = item.second;
+                if(containsPlayerMove() && item.first.Player != Game.PlayerToPlay)
+                    continue;
+
+                var go = _piecesGameObject[item.first];
+                go.transform.position = Vector3.MoveTowards(go.transform.position, item.second, 30 * Time.deltaTime);
+                if(go.transform.position == item.second)
+                    done.Add(item);
             }
-            _toBeMoved.Clear();
+
+            foreach(var item in done)
+                _toBeMoved.Remove(item);
         }
+    }
+
+    private bool containsPlayerMove()
+    {
+        foreach(var item in _toBeMoved)
+            if(item.first.Player == Game.PlayerToPlay)
+                return true;
+        return false;
     }
 
     private void destroyOldGameObjects()
     {
-        lock(_toBeDestroyedthreadLocker)
+        if(_toBeMoved.Count != 0)
+            return;
+
+        lock(_toBeDestroyedThreadLocker)
         {
             foreach(var item in _toBeDestroyed)
             {
@@ -171,6 +192,9 @@ public class BoardManager : MonoBehaviour
 
     public void mouseLeftButtonClicked()
     {
+        if(_toBeMoved.Count != 0)
+            return;
+        
         if(!Input.GetMouseButtonDown(0))
             return;
             
@@ -278,6 +302,9 @@ public class BoardManager : MonoBehaviour
       
     public void selectButtonClicked()
     {
+        if(_toBeMoved.Count != 0)
+            return;
+        
         _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util.Constants._scale), 
                                           (int)(_cursor.transform.position.z / Util.Constants._scale));
         if(!onBoard(_tileUnderCursor))
