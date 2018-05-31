@@ -29,19 +29,19 @@ MonoBehaviour:
     seeThroughConfiguration: 0
     viewerName: Generic Cardboard
     viewerManufacturer: Vuforia
-    useCustomViewer: 0
+    useCustomViewer: 1
     customViewer:
       Version: 0
       Name: 
       Manufacturer: 
       ButtonType: 0
-      ScreenToLensDistance: 0
-      InterLensDistance: 0
+      ScreenToLensDistance: 0.042
+      InterLensDistance: 0.06
       TrayAlignment: 0
-      LensCenterToTrayDistance: 0
-      DistortionCoefficients: {x: 0, y: 0}
-      FieldOfView: {x: 0, y: 0, z: 0, w: 0}
-      ContainsMagnet: 0
+      LensCenterToTrayDistance: 0.035
+      DistortionCoefficients: {x: 0.11, y: 0.06}
+      FieldOfView: {x: 60, y: 60, z: 60, w: 60}
+      ContainsMagnet: 1
   databaseLoad:
     dataSetsToLoad:
     - Db
