@@ -206,7 +206,7 @@ public class BoardManager : MonoBehaviour
         RaycastHit hit;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
-            _tileUnderCursor = new Vector2Int((int)(hit.point.x / Util.Constants._scale), (int)(hit.point.z / Util.Constants._scale));
+            _tileUnderCursor = Util.Constants.getTile(hit.point);
         else
             _tileUnderCursor = _none;
 
@@ -308,9 +308,10 @@ public class BoardManager : MonoBehaviour
         if(_toBeMoved.Count != 0)
             return;
         Debug.Log("after check");
+
+        _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
+        Debug.Log(_tileUnderCursor);
         
-        _tileUnderCursor = new Vector2Int((int)(_cursor.transform.position.x / Util.Constants._scale), 
-                                          (int)(_cursor.transform.position.z / Util.Constants._scale));
         if(!onBoard(_tileUnderCursor))
         {
             _tileUnderCursor = _none;
