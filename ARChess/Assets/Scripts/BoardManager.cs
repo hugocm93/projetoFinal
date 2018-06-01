@@ -14,6 +14,7 @@ public class BoardManager : MonoBehaviour
     public Material _selectedMat;
     public GameObject _cursorPrefab;
 
+    private AudioSource _audioSource;
     private Moves _possibleMoves;
     private Square _squareFrom;
     private Square _squareTo;
@@ -57,6 +58,10 @@ public class BoardManager : MonoBehaviour
         _cursor.transform.SetParent(transform);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
+
+
+        _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
+        _audioSource.loop = true;
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
@@ -165,6 +170,11 @@ public class BoardManager : MonoBehaviour
 
             foreach(var item in done)
                 _toBeMoved.Remove(item);
+
+            if(_toBeMoved.Count == 0)
+                _audioSource.Pause();
+            else if(!_audioSource.isPlaying)
+                _audioSource.UnPause();
         }
     }
 
@@ -304,10 +314,8 @@ public class BoardManager : MonoBehaviour
       
     public void selectButtonClicked()
     {
-        Debug.Log("button pressed");
         if(_toBeMoved.Count != 0)
             return;
-        Debug.Log("after check");
 
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
         Debug.Log(_tileUnderCursor);
