@@ -5,7 +5,6 @@ using UnityEngine;
 using Vuforia;
 using SharpChess.Model;
 
-
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager _instance{set; get;}
@@ -59,7 +58,6 @@ public class BoardManager : MonoBehaviour
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
 
-
         _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
         _audioSource.loop = true;
 
@@ -75,12 +73,26 @@ public class BoardManager : MonoBehaviour
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerToPlay = Game.PlayerWhite;
         Game.ShowThinking = true;
+        Game.BackupGamePath = "backup";
+        Game.UseRandomOpeningMoves = true;
         Game.New();
 	}
 
+    private void Update()
+    {
+        mouseLeftButtonClicked();
+        updateCursor();
+        movePieces();
+        destroyOldGameObjects();
+
+        #if DEBUG
+        drawChessboard();
+        #endif
+    }
+
+
     private void dummy()
     {
-        Debug.Log("Dummy");
     }
 
     private void BoardPositionChangedEvent()
@@ -137,20 +149,6 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
-        	
-	private void Update()
-	{
-        //updatePieces(); //remover
-
-        mouseLeftButtonClicked();
-        updateCursor();
-        movePieces();
-        destroyOldGameObjects();
-
-#if DEBUG
-        drawChessboard();
-#endif
-	}
 
     private void movePieces()
     {
@@ -163,7 +161,7 @@ public class BoardManager : MonoBehaviour
                     continue;
 
                 var go = _piecesGameObject[item.first];
-                go.transform.position = Vector3.MoveTowards(go.transform.position, item.second, 30 * Time.deltaTime);
+                go.transform.position = Vector3.MoveTowards(go.transform.position, item.second,  40 * Time.deltaTime);
                 if(go.transform.position == item.second)
                     done.Add(item);
             }
@@ -180,16 +178,22 @@ public class BoardManager : MonoBehaviour
 
     private bool containsPlayerMove()
     {
-        foreach(var item in _toBeMoved)
-            if(item.first.Player == Game.PlayerToPlay)
-                return true;
+        lock(_toBeMovedThreadLocker)
+        {
+            foreach(var item in _toBeMoved)
+                if(item.first.Player == Game.PlayerToPlay)
+                    return true;
+        }
         return false;
     }
 
     private void destroyOldGameObjects()
     {
-        if(_toBeMoved.Count != 0)
-            return;
+        lock(_toBeMovedThreadLocker)
+        {
+            if(_toBeMoved.Count != 0)
+                return;
+        }
 
         lock(_toBeDestroyedThreadLocker)
         {
@@ -197,30 +201,19 @@ public class BoardManager : MonoBehaviour
             {
                 _piecesGameObject.Remove(item.Key);
                 Destroy(item.Value);
+
+//                if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
+//                    continue;
+//
+//                var tileSize = Util.Constants._tile_size * Util.Constants._scale;
+//                var boardLength = 9 * tileSize;
+//                var blackArea = new Vector3(boardLength, 0, boardLength / 2);
+//                var whiteArea = new Vector3(boardLength, 0, 0);
+//                var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
+//                item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
             }
             _toBeDestroyed.Clear();
         }
-    }
-
-    public void mouseLeftButtonClicked()
-    {
-        if(_toBeMoved.Count != 0)
-            return;
-
-        if(!Input.GetMouseButtonDown(0))
-            return;
-            
-        if(!Camera.main)
-            return;
-
-        RaycastHit hit;
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
-            _tileUnderCursor = Util.Constants.getTile(hit.point);
-        else
-            _tileUnderCursor = _none;
-
-        updateSelection();
     }
 
     private void updateCursor()
@@ -290,10 +283,18 @@ public class BoardManager : MonoBehaviour
 
             Game.MakeAMove(move.Name, move.Piece, move.To);
         }
+            
+        unSelectPiece();
+    }
 
-        changeMaterial(_piecesGameObject[_selectedPiece], _previousMat);
-        TileHighlight._instance.hideTileHighlights();
-        _selectedPiece = null;
+    private void unSelectPiece()
+    {
+        if(_selectedPiece != null)
+        {
+            changeMaterial(_piecesGameObject[_selectedPiece], _previousMat);
+            TileHighlight._instance.hideTileHighlights();
+            _selectedPiece = null;
+        }
     }
 
 	private void updateSelection()
@@ -314,19 +315,85 @@ public class BoardManager : MonoBehaviour
       
     public void selectButtonClicked()
     {
-        if(_toBeMoved.Count != 0)
-            return;
+        lock(_toBeMovedThreadLocker)
+        {
+            if(_toBeMoved.Count != 0)
+                return;
+        }
 
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
-        Debug.Log(_tileUnderCursor);
-        
         if(!onBoard(_tileUnderCursor))
         {
             _tileUnderCursor = _none;
+        }
+        else
+        {
+            updateSelection();
             return;
         }
 
+        RaycastHit hit;
+        var ray = new Ray(_cursor.transform.position, Vector3.down);
+        Util.ButtonEnum[] buttons = {Util.ButtonEnum.NewGame, Util.ButtonEnum.Undo, Util.ButtonEnum.Redo};
+        foreach(var button in buttons)
+        {
+            var layerName = Util.Constants.ButtonEnumToString(button);
+            if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
+            {
+                interfaceButtonClicked(button);
+                return;
+            }
+        }
+    }
+
+    public void mouseLeftButtonClicked()
+    {
+        lock(_toBeMovedThreadLocker)
+        {
+            if(_toBeMoved.Count != 0 || !Input.GetMouseButtonDown(0) || !Camera.main)
+                return;
+        }
+
+        RaycastHit hit;
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
+            _tileUnderCursor = Util.Constants.getTile(hit.point);
+        else
+            _tileUnderCursor = _none;
         updateSelection();
+
+        Util.ButtonEnum[] buttons = {Util.ButtonEnum.NewGame, Util.ButtonEnum.Undo, Util.ButtonEnum.Redo};
+        foreach(var button in buttons)
+        {
+            var layerName = Util.Constants.ButtonEnumToString(button);
+            if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
+            {
+                interfaceButtonClicked(button);
+                return;
+            }
+        }
+    }
+
+    void interfaceButtonClicked(Util.ButtonEnum buttonEnum)
+    {
+        unSelectPiece();
+
+        switch(buttonEnum)
+        {
+            case Util.ButtonEnum.NewGame: 
+                Game.New();
+                break;
+
+            case Util.ButtonEnum.Undo:
+                Game.UndoMove();
+                Game.UndoMove();
+                break;
+
+            case Util.ButtonEnum.Redo:
+                Game.RedoMove();
+                Game.RedoMove();
+                break;
+        }
     }
 
     private bool onBoard(Vector2Int v)

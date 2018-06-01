@@ -1130,7 +1130,6 @@ namespace SharpChess.Model
         /// </summary>
         private static void SaveBackup()
         {
-            return; //Aborta no unity
             if (!WinBoard.Active)
             {
                 // Only save backups if not using WinBoard.

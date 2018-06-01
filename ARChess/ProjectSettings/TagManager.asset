@@ -14,9 +14,9 @@ TagManager:
   - 
   - 
   - ChessPlane
-  - 
-  - 
-  - 
+  - NewGame
+  - Undo
+  - Redo
   - 
   - 
   - 

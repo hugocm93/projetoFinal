@@ -4,6 +4,11 @@ using UnityEngine;
 namespace Util
 {
     
+public enum ButtonEnum
+{
+    NewGame, Undo, Redo
+};
+
 public class Constants
 {
     public static float _scale = 10.0f;
@@ -25,6 +30,24 @@ public class Constants
         return new Vector2Int((int)(positionInBoard.x / Util.Constants._scale), 
                               (int)(positionInBoard.z / Util.Constants._scale));
     }
+
+    public static string ButtonEnumToString(ButtonEnum e)
+    {
+        switch(e)
+        {
+            case ButtonEnum.NewGame: 
+                return "NewGame";
+
+            case ButtonEnum.Undo:
+                return "Undo";
+
+            case ButtonEnum.Redo:
+                return "Redo";
+
+            default:
+                return "";
+        }
+    }
 };
         
 public class Pair<T, U>
@@ -40,5 +63,4 @@ public class Pair<T, U>
     public T first { get; set; }
     public U second { get; set; }
 };
-
 }
