@@ -63,6 +63,7 @@ public class BoardManager : MonoBehaviour
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
+        Game.BoardPositionChanged += dummy;
         Game.GamePaused += dummy;
         Game.GameResumed += dummy;
         Game.GameSaved += dummy;
@@ -161,7 +162,8 @@ public class BoardManager : MonoBehaviour
                     continue;
 
                 var go = _piecesGameObject[item.first];
-                go.transform.position = Vector3.MoveTowards(go.transform.position, item.second,  40 * Time.deltaTime);
+                var dist = 30 + Vector3.Distance(go.transform.position, item.second);
+                go.transform.position = Vector3.MoveTowards(go.transform.position, item.second,  dist * Time.deltaTime);
                 if(go.transform.position == item.second)
                     done.Add(item);
             }
@@ -199,18 +201,18 @@ public class BoardManager : MonoBehaviour
         {
             foreach(var item in _toBeDestroyed)
             {
-                _piecesGameObject.Remove(item.Key);
-                Destroy(item.Value);
+//                _piecesGameObject.Remove(item.Key);
+//                Destroy(item.Value);
 
-//                if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
-//                    continue;
-//
-//                var tileSize = Util.Constants._tile_size * Util.Constants._scale;
-//                var boardLength = 9 * tileSize;
-//                var blackArea = new Vector3(boardLength, 0, boardLength / 2);
-//                var whiteArea = new Vector3(boardLength, 0, 0);
-//                var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
-//                item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
+                if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
+                    continue;
+
+                var tileSize = Util.Constants._tile_size * Util.Constants._scale;
+                var boardLength = 9 * tileSize;
+                var blackArea = new Vector3(boardLength, 0, boardLength / 2);
+                var whiteArea = new Vector3(boardLength, 0, 0);
+                var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
+                item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
             }
             _toBeDestroyed.Clear();
         }
@@ -385,12 +387,16 @@ public class BoardManager : MonoBehaviour
                 break;
 
             case Util.ButtonEnum.Undo:
+                Game.BoardPositionChanged -= BoardPositionChangedEvent;
                 Game.UndoMove();
+                Game.BoardPositionChanged += BoardPositionChangedEvent;
                 Game.UndoMove();
                 break;
 
             case Util.ButtonEnum.Redo:
+                Game.BoardPositionChanged -= BoardPositionChangedEvent;
                 Game.RedoMove();
+                Game.BoardPositionChanged += BoardPositionChangedEvent;
                 Game.RedoMove();
                 break;
         }
