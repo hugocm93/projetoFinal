@@ -14,8 +14,7 @@ public class Constants
     public static float _scale = 10.0f;
     public static float _tile_size = 1f;
     public static Vector2 _tile_offset = new Vector2(_tile_size / 2, _tile_size / 2);
-
-    private static Vector3 _origin = GameObject.Find("ChessBoard").transform.position;
+    public static Vector3 _origin = GameObject.Find("ChessBoard").transform.position;
      
     public static Vector3 getTileCenter(Vector2Int position)
     {

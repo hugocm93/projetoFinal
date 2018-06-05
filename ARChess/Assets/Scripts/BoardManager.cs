@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Xml;
 using UnityEngine;
 using Vuforia;
 using SharpChess.Model;
@@ -74,10 +75,26 @@ public class BoardManager : MonoBehaviour
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerToPlay = Game.PlayerWhite;
         Game.ShowThinking = true;
-        Game.BackupGamePath = "backup";
+
+        Game.BackupGamePath = getPath();
+        
         Game.UseRandomOpeningMoves = true;
         Game.New();
 	}
+
+    private string getPath()
+    {
+        string fileName = "backupGame.xml";
+        #if UNITY_EDITOR
+        return Application.dataPath +"/Resources/"+fileName;
+        #elif UNITY_ANDROID
+        return Application.persistentDataPath+fileName;
+        #elif UNITY_IPHONE
+        return Application.persistentDataPath+"/"+fileName;
+        #else
+        return Application.dataPath +"/"+ fileName;
+        #endif
+        }
 
     private void Update()
     {
@@ -216,16 +233,13 @@ public class BoardManager : MonoBehaviour
         {
             foreach(var item in _toBeDestroyed)
             {
-//                _piecesGameObject.Remove(item.Key);
-//                Destroy(item.Value);
-
                 if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
                     continue;
 
                 var tileSize = Util.Constants._tile_size * Util.Constants._scale;
                 var boardLength = 9 * tileSize;
-                var blackArea = new Vector3(boardLength, 0, boardLength / 2);
-                var whiteArea = new Vector3(boardLength, 0, 0);
+                var blackArea = new Vector3(boardLength, 0, Util.Constants._origin.z + boardLength / 2);
+                var whiteArea = new Vector3(boardLength, 0, Util.Constants._origin.z);
                 var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
                 item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
             }
