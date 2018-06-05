@@ -14,7 +14,8 @@ public class BoardManager : MonoBehaviour
     public Material _selectedMat;
     public GameObject _cursorPrefab;
 
-    private AudioSource _audioSource;
+    private AudioSource _audioSourceDragging;
+    private AudioSource _audioSourceClicking;
     private Moves _possibleMoves;
     private Square _squareFrom;
     private Square _squareTo;
@@ -68,8 +69,9 @@ public class BoardManager : MonoBehaviour
 
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
-        _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
-        _audioSource.loop = true;
+        _audioSourceDragging = GameObject.Find("AudioSource").GetComponent<AudioSource>();
+        _audioSourceClicking = GameObject.Find("AudioSource2").GetComponent<AudioSource>();
+        _audioSourceDragging.loop = true;
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
@@ -257,9 +259,9 @@ public class BoardManager : MonoBehaviour
                 _toBeMoved.Remove(item);
 
             if(_toBeMoved.Count == 0)
-                _audioSource.Pause();
-            else if(!_audioSource.isPlaying)
-                _audioSource.UnPause();
+                _audioSourceDragging.Pause();
+            else if(!_audioSourceDragging.isPlaying)
+                _audioSourceDragging.UnPause();
         }
     }
 
@@ -414,6 +416,8 @@ public class BoardManager : MonoBehaviour
                 return;
         }
 
+        _audioSourceClicking.Play();
+
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
         if(!onBoard(_tileUnderCursor))
         {
@@ -445,6 +449,8 @@ public class BoardManager : MonoBehaviour
             if(_toBeMoved.Count != 0 || !Input.GetMouseButtonDown(0) || !Camera.main)
                 return;
         }
+
+        _audioSourceClicking.Play();
 
         RaycastHit hit;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
