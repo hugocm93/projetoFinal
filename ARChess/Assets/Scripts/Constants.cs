@@ -6,7 +6,7 @@ namespace Util
     
 public enum ButtonEnum
 {
-    NewGame, Undo, Redo
+    NewGame, LoadGame, SaveGame, Undo, Redo, File1, File2, File3
 };
 
 public class Constants
@@ -43,11 +43,26 @@ public class Constants
             case ButtonEnum.NewGame: 
                 return "NewGame";
 
+            case ButtonEnum.LoadGame:
+                return "LoadGame";
+
+            case ButtonEnum.SaveGame:
+                return "SaveGame";
+
             case ButtonEnum.Undo:
                 return "Undo";
 
             case ButtonEnum.Redo:
                 return "Redo";
+
+            case ButtonEnum.File1:
+                return "File1";
+
+            case ButtonEnum.File2:
+                return "File2";
+
+            case ButtonEnum.File3:
+                return "File3";
 
             default:
                 return "";

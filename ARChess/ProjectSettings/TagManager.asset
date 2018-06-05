@@ -17,11 +17,11 @@ TagManager:
   - NewGame
   - Undo
   - Redo
-  - 
-  - 
-  - 
-  - 
-  - 
+  - SaveGame
+  - LoadGame
+  - File1
+  - File2
+  - File3
   - 
   - 
   - 

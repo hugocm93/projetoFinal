@@ -41,6 +41,8 @@ public class BoardManager : MonoBehaviour
     public GameObject _statusPrefab;
     private GameObject _status;
 
+    private string _fileName;
+
     private readonly Vector2Int _none = new Vector2Int(-1, -1);
 
 	void Start()
@@ -65,6 +67,9 @@ public class BoardManager : MonoBehaviour
         // Desenhar cursor
         _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
+
+        var boardCenter = Util.Constants.getBoardCenter();
+        //_cursor.transform.position = new Vector3(boardCenter.x, 20, boardCenter.z);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
         _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
@@ -83,11 +88,9 @@ public class BoardManager : MonoBehaviour
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerToPlay = Game.PlayerWhite;
         Game.ShowThinking = true;
-
-        Game.BackupGamePath = getPath();
-        
         Game.UseRandomOpeningMoves = true;
-        Game.New();
+        Game.BackupGamePath = getPath("saveBackup");
+        interfaceButtonClicked(Util.ButtonEnum.File1);
 	}
 
     private void showStatusMessage(bool show, string message = "")
@@ -106,17 +109,19 @@ public class BoardManager : MonoBehaviour
         }
     }
         
-    private string getPath()
+    private string getPath(string fileName = null)
     {
-        string fileName = "backupGame.xml";
+        if(fileName == null)
+            fileName = _fileName;
+        
         #if UNITY_EDITOR
-        return Application.dataPath +"/Resources/"+fileName;
+        return Application.dataPath +"/Resources/" + fileName + ".xml";
         #elif UNITY_ANDROID
-        return Application.persistentDataPath+fileName;
+        return Application.persistentDataPath + fileName + ".xml";
         #elif UNITY_IPHONE
-        return Application.persistentDataPath+"/"+fileName;
+        return Application.persistentDataPath+"/" + fileName + ".xml";
         #else
-        return Application.dataPath +"/"+ fileName;
+        return Application.dataPath +"/"+ fileName + ".xml";
         #endif
         }
 
@@ -321,7 +326,16 @@ public class BoardManager : MonoBehaviour
             return;
 
         _selectedPiece = piece;
-        var go = _piecesGameObject[_selectedPiece];
+        GameObject go;
+        try
+        {
+            go = _piecesGameObject[_selectedPiece];
+        }
+        catch(System.Exception)
+        {
+            _selectedPiece = null;
+            return;
+        }
 
         // Set selection outline
         _previousMat = go.GetComponentsInChildren<MeshRenderer>()[0].material;
@@ -417,8 +431,7 @@ public class BoardManager : MonoBehaviour
 
         RaycastHit hit;
         var ray = new Ray(_cursor.transform.position, Vector3.down);
-        Util.ButtonEnum[] buttons = {Util.ButtonEnum.NewGame, Util.ButtonEnum.Undo, Util.ButtonEnum.Redo};
-        foreach(var button in buttons)
+        foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
         {
             var layerName = Util.Constants.ButtonEnumToString(button);
             if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
@@ -445,8 +458,7 @@ public class BoardManager : MonoBehaviour
             _tileUnderCursor = _none;
         updateSelection();
 
-        Util.ButtonEnum[] buttons = {Util.ButtonEnum.NewGame, Util.ButtonEnum.Undo, Util.ButtonEnum.Redo};
-        foreach(var button in buttons)
+        foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
         {
             var layerName = Util.Constants.ButtonEnumToString(button);
             if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
@@ -480,6 +492,27 @@ public class BoardManager : MonoBehaviour
                 Game.BoardPositionChanged += BoardPositionChangedEvent;
                 Game.RedoMove();
                 break;
+
+            case Util.ButtonEnum.SaveGame:
+                Game.Save(getPath());
+            break;
+
+            case Util.ButtonEnum.LoadGame:
+                Game.Load(getPath());
+            break;
+
+            case Util.ButtonEnum.File1:
+            case Util.ButtonEnum.File2:
+            case Util.ButtonEnum.File3:
+                foreach(var file in new Util.ButtonEnum[]{Util.ButtonEnum.File1, Util.ButtonEnum.File2, Util.ButtonEnum.File3})
+                {
+                    var f = GameObject.Find(Util.Constants.ButtonEnumToString(file));
+                    f.GetComponent<MeshRenderer>().material.color = Color.white;
+                }
+                _fileName = Util.Constants.ButtonEnumToString(buttonEnum);
+                var go = GameObject.Find(_fileName);
+                go.GetComponent<MeshRenderer>().material.color = Color.yellow;
+            break;
         }
     }
 

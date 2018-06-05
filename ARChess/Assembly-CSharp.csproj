@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BoardManager.cs" />
-     <Compile Include="Assets\Scripts\ButtonEnum.cs" />
      <Compile Include="Assets\Scripts\Constants.cs" />
      <Compile Include="Assets\Scripts\NoARPlease.cs" />
      <Compile Include="Assets\Scripts\TileHighlight.cs" />
@@ -104,12 +103,16 @@
      <None Include="Assets\Vuforia\Shaders\VertexLitWithZ.shader" />
      <None Include="Assets\StreamingAssets\Vuforia\Db.xml" />
      <None Include="Assets\Vuforia\Shaders\OutlineOpaque.shader" />
+     <None Include="Assets\Resources\File3.xml" />
      <None Include="Assets\StreamingAssets\Vuforia\VuforiaMars_Object_OT.xml" />
      <None Include="Assets\Vuforia\Shaders\DepthMask.shader" />
      <None Include="Assets\StreamingAssets\Vuforia\VuforiaMars_Images.xml" />
+     <None Include="Assets\Resources\File1.xml" />
+     <None Include="Assets\Resources\saveBackup.xml" />
      <None Include="Assets\Vuforia\Shaders\BrightTexture.shader" />
      <None Include="Assets\StreamingAssets\Vuforia\VuforiaMars_VuMark.xml" />
      <None Include="Assets\Vuforia\Shaders\DepthContour.shader" />
+     <None Include="Assets\Resources\File2.xml" />
      <None Include="Assets\Vuforia\Shaders\Text3D.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
