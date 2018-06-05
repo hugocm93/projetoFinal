@@ -85,12 +85,27 @@ public class BoardManager : MonoBehaviour
         updateCursor();
         movePieces();
         destroyOldGameObjects();
+        billBoardEffect();
 
         #if DEBUG
         drawChessboard();
         #endif
     }
 
+    private void billBoardEffect()
+    {
+        Camera camera;
+        var ARcameraObj = GameObject.Find("ARCamera");
+        if(ARcameraObj == null)
+            camera = Camera.main;
+        else
+            camera = ARcameraObj.GetComponent<Camera>();
+
+        //Look at
+        var point = camera.transform.position;
+        var status = GameObject.Find("status");
+        status.transform.rotation = Quaternion.LookRotation(status.transform.position - point);
+    }
 
     private void dummy()
     {
