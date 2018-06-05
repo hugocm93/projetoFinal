@@ -30,10 +30,17 @@ public class BoardManager : MonoBehaviour
     private System.Object _toBeMovedThreadLocker;
     private List<Util.Pair<Piece, Vector3>> _toBeMoved;
 
+    private System.Object _toBeUpdatedThreadLocker;
+    private string _toBeUpdated;
+
     private Material _previousMat;
     private Vector2Int _tileUnderCursor;
     private GameObject _cursor;
     private GameObject _cursorTarget;
+
+    public GameObject _statusPrefab;
+    private GameObject _status;
+
     private readonly Vector2Int _none = new Vector2Int(-1, -1);
 
 	void Start()
@@ -49,6 +56,8 @@ public class BoardManager : MonoBehaviour
         _toBeMovedThreadLocker = new System.Object();
         _toBeMoved = new List<Util.Pair<Piece, Vector3>>();
 
+        _toBeUpdatedThreadLocker = new System.Object();
+
         // Inicializar highlights
         if(TileHighlight._instance)
             TileHighlight._instance.hideTileHighlights();
@@ -58,7 +67,6 @@ public class BoardManager : MonoBehaviour
         _cursor.transform.SetParent(transform);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
-
         _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
         _audioSource.loop = true;
 
@@ -82,6 +90,22 @@ public class BoardManager : MonoBehaviour
         Game.New();
 	}
 
+    private void showStatusMessage(bool show, string message = "")
+    {
+        if(!show && _status != null)
+        {
+            Destroy(_status);
+            _status = null;
+        }
+        else if(show)
+        {
+            if(_status == null)
+                _status = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+            _status.GetComponent<TextMesh>().text = message;
+            _status.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = message;
+        }
+    }
+        
     private string getPath()
     {
         string fileName = "backupGame.xml";
@@ -102,6 +126,7 @@ public class BoardManager : MonoBehaviour
         updateCursor();
         movePieces();
         destroyOldGameObjects();
+        updateStatus();
         billBoardEffect();
 
         #if DEBUG
@@ -109,8 +134,35 @@ public class BoardManager : MonoBehaviour
         #endif
     }
 
+    private void updateStatus()
+    {
+        lock(_toBeUpdatedThreadLocker)
+        {
+            if(_toBeUpdated != null)
+                showStatusMessage(true, _toBeUpdated);
+            else
+                showStatusMessage(false);
+        }
+    }
+
+    private void verifyCheck()
+    {
+        lock(_toBeUpdatedThreadLocker)
+        {
+            _toBeUpdated = null;
+
+            if(Game.PlayerBlack.IsInCheck || Game.PlayerWhite.IsInCheck)
+                _toBeUpdated = "Check!";
+            if(Game.PlayerBlack.IsInCheckMate || Game.PlayerWhite.IsInCheckMate)
+                _toBeUpdated = "Check Mate!";
+        }
+    }
+
     private void billBoardEffect()
     {
+        if(_status == null)
+            return; 
+
         Camera camera;
         var ARcameraObj = GameObject.Find("ARCamera");
         if(ARcameraObj == null)
@@ -120,8 +172,7 @@ public class BoardManager : MonoBehaviour
 
         //Look at
         var point = camera.transform.position;
-        var status = GameObject.Find("status");
-        status.transform.rotation = Quaternion.LookRotation(status.transform.position - point);
+        _status.transform.rotation = Quaternion.LookRotation(_status.transform.position - point);
     }
 
     private void dummy()
@@ -131,6 +182,7 @@ public class BoardManager : MonoBehaviour
     private void BoardPositionChangedEvent()
     {
         updatePieces();
+        verifyCheck();
     }
 
     private void updatePieces()

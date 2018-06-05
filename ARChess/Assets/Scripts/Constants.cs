@@ -23,6 +23,12 @@ public class Constants
         return _origin + _scale * new Vector3(center2D.x, 0, center2D.y);
     }
 
+    public static Vector3 getBoardCenter()
+    {
+            var offset = _tile_size * _scale * 4;
+            return new Vector3(_origin.x + offset, _origin.y, _origin.z + offset);
+    }
+
     public static Vector2Int getTile(Vector3 position3d)
     {
         var positionInBoard = position3d - _origin;
