@@ -43,13 +43,11 @@ public class BoardManager : MonoBehaviour
 
     private string _fileName;
 
-    private readonly Vector2Int _none = new Vector2Int(-1, -1);
-
 	void Start()
 	{
         // Construtor
         _instance = this;
-		_tileUnderCursor = _none;
+		_tileUnderCursor = Util.Constants._none;
         _piecesGameObject = new Dictionary<Piece, GameObject>();
 
         _toBeDestroyedThreadLocker = new System.Object();
@@ -68,8 +66,6 @@ public class BoardManager : MonoBehaviour
         _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
 
-        var boardCenter = Util.Constants.getBoardCenter();
-        //_cursor.transform.position = new Vector3(boardCenter.x, 20, boardCenter.z);
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
         _audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
@@ -318,7 +314,7 @@ public class BoardManager : MonoBehaviour
 
     private void selectPiece()
     {
-        if(_tileUnderCursor == _none)
+        if(_tileUnderCursor == Util.Constants._none)
             return;
        
         var piece = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
@@ -396,7 +392,7 @@ public class BoardManager : MonoBehaviour
 
 	private void updateSelection()
     {
-        if(_tileUnderCursor == _none)
+        if(_tileUnderCursor == Util.Constants._none)
             return;
         
         if(_selectedPiece != null)
@@ -421,7 +417,7 @@ public class BoardManager : MonoBehaviour
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
         if(!onBoard(_tileUnderCursor))
         {
-            _tileUnderCursor = _none;
+            _tileUnderCursor = Util.Constants._none;
         }
         else
         {
@@ -455,7 +451,7 @@ public class BoardManager : MonoBehaviour
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
             _tileUnderCursor = Util.Constants.getTile(hit.point);
         else
-            _tileUnderCursor = _none;
+            _tileUnderCursor = Util.Constants._none;
         updateSelection();
 
         foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))

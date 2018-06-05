@@ -11,10 +11,11 @@ public enum ButtonEnum
 
 public class Constants
 {
-    public static float _scale = 10.0f;
-    public static float _tile_size = 1f;
-    public static Vector2 _tile_offset = new Vector2(_tile_size / 2, _tile_size / 2);
-    public static Vector3 _origin = GameObject.Find("ChessBoard").transform.position;
+    public static readonly float _scale = 10.0f;
+    public static readonly float _tile_size = 1f;
+    public static readonly Vector2 _tile_offset = new Vector2(_tile_size / 2, _tile_size / 2);
+    public static readonly Vector3 _origin = GameObject.Find("ChessBoard").transform.position;
+    public static readonly Vector2Int _none = new Vector2Int(-1, -1);
      
     public static Vector3 getTileCenter(Vector2Int position)
     {
@@ -32,6 +33,9 @@ public class Constants
     public static Vector2Int getTile(Vector3 position3d)
     {
         var positionInBoard = position3d - _origin;
+        if(positionInBoard.x < 0 || positionInBoard.z < 0)
+            return _none;
+            
         return new Vector2Int((int)(positionInBoard.x / Util.Constants._scale), 
                               (int)(positionInBoard.z / Util.Constants._scale));
     }
