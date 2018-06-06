@@ -12,7 +12,7 @@ public class UICallbacks : MonoBehaviour
 
     void Start()
     {
-        Back();
+        back();
     }
 
     public void startGame()
@@ -21,23 +21,47 @@ public class UICallbacks : MonoBehaviour
         SceneManager.LoadScene(arEnabled ? "ARChessBoard" : "NoARChessBoard");
     }
 
-    public void Configuration()
+    public void configuration()
     {
         _MainPanel.SetActive(false);
         _ConfigurationPanel.SetActive(true);
     }
 
-    public void Help()
+    public void help()
     {
         _MainPanel.SetActive(false);
         _HelpPanel.SetActive(true);
     }
 
-    public void Back()
+    public void back()
     {
         _MainPanel.SetActive(true);
         _ConfigurationPanel.SetActive(false);
         _HelpPanel.SetActive(false);
+    }
+
+    public void playerColorChanged()
+    {
+    }
+
+    public void selectionModeChanged()
+    {
+    }
+
+    public void difficultyChanged(float difficulty)
+    {
+    }
+
+    public void soundToggle(bool status)
+    {
+    }
+
+    public void arToggle(bool status)
+    {
+    }
+
+    public void showLegalMovesToggle(bool status)
+    {
     }
 
 }
