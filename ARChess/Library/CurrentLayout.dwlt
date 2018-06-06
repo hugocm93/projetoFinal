@@ -20,7 +20,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 6}
-  m_MinSize: {x: 950, y: 392}
+  m_MinSize: {x: 950, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &2
 MonoBehaviour:
@@ -42,8 +42,8 @@ MonoBehaviour:
     y: 30
     width: 1440
     height: 805
-  m_MinSize: {x: 683, y: 342}
-  m_MaxSize: {x: 12008, y: 8042}
+  m_MinSize: {x: 683, y: 492}
+  m_MaxSize: {x: 14004, y: 14042}
   vertical: 0
   controlID: 26
 --- !u!114 &3
@@ -90,8 +90,8 @@ MonoBehaviour:
     y: 0
     width: 202
     height: 511
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -115,14 +115,14 @@ MonoBehaviour:
     y: 511
     width: 1092
     height: 294
-  m_MinSize: {x: 102, y: 121}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 19}
+  m_MinSize: {x: 232, y: 271}
+  m_MaxSize: {x: 10002, y: 10021}
+  m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
   - {fileID: 19}
-  m_Selected: 1
-  m_LastSelected: 0
+  m_Selected: 0
+  m_LastSelected: 1
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -207,8 +207,8 @@ MonoBehaviour:
     y: 0
     width: 1092
     height: 805
-  m_MinSize: {x: 406, y: 342}
-  m_MaxSize: {x: 8006, y: 8042}
+  m_MinSize: {x: 406, y: 492}
+  m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
   controlID: 27
 --- !u!114 &10
@@ -360,19 +360,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Resources
+    - Assets
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Resources
+  - Assets
   m_LastFoldersGridSize: 16
   m_LastProjectPath: /Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess
   m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 80}
-    m_SelectedIDs: b42e0000
-    m_LastClickedID: 11956
-    m_ExpandedIDs: 0000000096290000ba290000de290000f22a0000b42b0000b22c0000442d0000783500007a3500007c3500007e35000000ca9a3bffffff7f
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: 96290000
+    m_LastClickedID: 10646
+    m_ExpandedIDs: 0000000096290000ba290000de290000f22a0000b62b0000b42c0000482d0000b8350000ba350000bc350000be35000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -400,7 +400,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000096290000ba290000de290000f22a0000b42b0000b22c0000442d0000783500007a3500007c3500007e350000
+    m_ExpandedIDs: 0000000096290000ba290000de290000f22a0000b62b0000b42c0000482d0000b8350000ba350000bc350000be350000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -431,18 +431,18 @@ MonoBehaviour:
     m_ExpandedInstanceIDs: c6230000143f00007a07000000000000fc35000070ddfbfff42c0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: NoARChessBoard
+      m_OriginalName: NoARChessBoard
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: 11658
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 5}
     m_CreateAssetUtility:
@@ -520,7 +520,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 90c6fdff06c7fdff20ccfdff4cccfdff68ccfdffe2fffdffca26feffcc26feff6a3cfeff944ffeff964ffeffe46bfeff746cfeff8e71feffba71feffd671feff70bdfeff00befeff1ac3feff46c3feff62c3feff58f2feff9cfbffff9efbffff00000000fe5a00006e7200001e7f0000b2820000ce8f0000
+    m_ExpandedIDs: 64d2fefff2d2feff0cd8feff38d8feff54d8feffcee1feff742cffff9e32ffff584fffffe64fffff0055ffff2c55ffff4855fffffa5fffff8860ffffa265ffffce65ffffea65ffffb46bffff9ce2ffff9efbffff00000000ae2f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -571,14 +571,14 @@ MonoBehaviour:
     height: 490
   m_PersistentViewDataDictionary: {fileID: 0}
   m_SceneLighting: 1
-  lastFramingTime: 1349.2952729463577
+  lastFramingTime: 442.3115379810333
   m_2DMode: 0
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 27.637753, y: -1.0448012, z: 1.5360351}
+    m_Target: {x: 0, y: 60.1, z: -0}
     speed: 2
-    m_Value: {x: 27.637753, y: -1.0448012, z: 1.5360351}
+    m_Value: {x: 0, y: 60.1, z: 0}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -590,29 +590,29 @@ MonoBehaviour:
     showParticleSystems: 1
   grid:
     xGrid:
-      m_Target: 0
-      speed: 2
-      m_Value: 0
-    yGrid:
       m_Target: 1
       speed: 2
       m_Value: 1
+    yGrid:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
     zGrid:
       m_Target: 0
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+    m_Target: {x: 0, y: -0.7071068, z: -0, w: 0.7071068}
     speed: 2
-    m_Value: {x: -0.7071068, y: 0, z: -0, w: -0.7071068}
+    m_Value: {x: -0, y: 0.70710677, z: 0, w: -0.70710677}
   m_Size:
-    m_Target: 133.16208
+    m_Target: 178.34189
     speed: 2
-    m_Value: 133.16208
+    m_Value: 178.34189
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 0
+    m_Value: 1
   m_ShowGlobalGrid: 1
   m_LastSceneViewRotation: {x: -0.2542422, y: -0.08141031, z: 0.021482114, w: -0.9634687}
   m_LastSceneViewOrtho: 0
@@ -677,18 +677,18 @@ MonoBehaviour:
       y: 17
       width: 886
       height: 473
-    m_Scale: {x: 1.1952666, y: 1.1952666}
-    m_Translation: {x: 443.0002, y: 236.49992}
+    m_Scale: {x: 1, y: 1}
+    m_Translation: {x: 443, y: 236.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -370.62878
-      y: -197.86374
-      width: 741.2572
-      height: 395.7276
+      x: -443
+      y: -236.5
+      width: 886
+      height: 473
     m_MinimalGUI: 1
   m_defaultScale: 2
   m_TargetTexture: {fileID: 0}

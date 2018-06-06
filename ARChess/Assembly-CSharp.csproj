@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\BoardManager.cs" />
      <Compile Include="Assets\Scripts\Constants.cs" />
      <Compile Include="Assets\Scripts\NoARPlease.cs" />
+     <Compile Include="Assets\Scripts\Scheduler.cs" />
      <Compile Include="Assets\Scripts\TileHighlight.cs" />
      <Compile Include="Assets\Scripts\UICallbacks.cs" />
      <Compile Include="Assets\Scripts\VirtualButtonsHandler.cs" />
