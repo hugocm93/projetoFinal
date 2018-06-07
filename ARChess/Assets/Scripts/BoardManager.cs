@@ -420,6 +420,8 @@ public class BoardManager : MonoBehaviour
         }
 
         _audioSourceClicking.Play();
+        selectButton("SelectVirtualButton");
+        Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
 
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
         if(!onBoard(_tileUnderCursor))
@@ -485,7 +487,8 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.Redo:
             case Util.ButtonEnum.SaveGame:
             case Util.ButtonEnum.LoadGame:
-                selectButton(buttonEnum);
+                var name = Util.Constants.ButtonEnumToString(buttonEnum);
+                selectButton(name);
                 Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
                 break;
 
@@ -529,9 +532,8 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public void selectButton(Util.ButtonEnum buttonEnum)
+    public void selectButton(string name)
     {
-        var name = Util.Constants.ButtonEnumToString(buttonEnum);
         var go = GameObject.Find(name);
         _selection.transform.position = go.transform.position; 
         _selection.SetActive(true);
