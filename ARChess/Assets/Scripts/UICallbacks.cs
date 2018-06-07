@@ -17,7 +17,7 @@ public class UICallbacks : MonoBehaviour
 
     public void startGame()
     {
-        bool arEnabled = true;
+        bool arEnabled = ConfigModel._ar;
         SceneManager.LoadScene(arEnabled ? "ARChessBoard" : "NoARChessBoard");
     }
 
@@ -40,28 +40,35 @@ public class UICallbacks : MonoBehaviour
         _HelpPanel.SetActive(false);
     }
 
-    public void playerColorChanged()
+    public void playerColorChanged(int player)
     {
+        ConfigModel._player = player == 0 ? SharpChess.Model.Player.PlayerColourNames.White : 
+                                            SharpChess.Model.Player.PlayerColourNames.Black;
     }
 
-    public void selectionModeChanged()
+    public void selectionModeChanged(int mode)
     {
+        ConfigModel._selection = mode == 0 ? Selection.VirtualButton : 
+                                             Selection.Time;
     }
 
     public void difficultyChanged(float difficulty)
     {
+        ConfigModel._difficulty = (int)difficulty;
     }
 
     public void soundToggle(bool status)
     {
+        ConfigModel._sound = status;
     }
 
     public void arToggle(bool status)
     {
+        ConfigModel._ar = status;
     }
 
     public void showLegalMovesToggle(bool status)
     {
+        ConfigModel._showLegalMoves = status;
     }
-
 }

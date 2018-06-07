@@ -74,6 +74,8 @@ public class BoardManager : MonoBehaviour
         _audioSourceDragging = GameObject.Find("AudioSource").GetComponent<AudioSource>();
         _audioSourceClicking = GameObject.Find("AudioSource2").GetComponent<AudioSource>();
         _audioSourceDragging.loop = true;
+        _audioSourceDragging.volume = ConfigModel._sound == true ? 1 : 0;
+        _audioSourceClicking.volume = ConfigModel._sound == true ? 1 : 0;
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
@@ -86,10 +88,17 @@ public class BoardManager : MonoBehaviour
         Game.PlayerBlack.Brain.MoveConsideredEvent += dummy;
         Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
-        Game.PlayerToPlay = Game.PlayerWhite;
-        Game.ShowThinking = true;
+
+        Game.PlayerWhite.Intellegence = ConfigModel._player == Player.PlayerColourNames.White ? 
+                                        Player.PlayerIntellegenceNames.Human : Player.PlayerIntellegenceNames.Computer;
+
+        Game.PlayerBlack.Intellegence = ConfigModel._player == Player.PlayerColourNames.White ? 
+                                        Player.PlayerIntellegenceNames.Computer : Player.PlayerIntellegenceNames.Human;
+
+        Game.DifficultyLevel = ConfigModel._difficulty;
         Game.UseRandomOpeningMoves = true;
         Game.BackupGamePath = getPath("saveBackup");
+        Game.ShowThinking = true;
         interfaceButtonClicked(Util.ButtonEnum.File1);
 	}
 
@@ -320,11 +329,15 @@ public class BoardManager : MonoBehaviour
     private void selectPiece()
     {
         if(_tileUnderCursor == Util.Constants._none)
+        {
             return;
+        }
        
         var piece = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
-        if(piece == null || piece.Player != Game.PlayerToPlay)
+        if(piece == null || piece.Player != Game.PlayerToPlay || piece.Player.Colour != ConfigModel._player)
+        {
             return;
+        }
 
         _selectedPiece = piece;
         GameObject go;
@@ -483,22 +496,6 @@ public class BoardManager : MonoBehaviour
         switch(buttonEnum)
         {
             case Util.ButtonEnum.NewGame: 
-            case Util.ButtonEnum.Undo:
-            case Util.ButtonEnum.Redo:
-            case Util.ButtonEnum.SaveGame:
-            case Util.ButtonEnum.LoadGame:
-                var name = Util.Constants.ButtonEnumToString(buttonEnum);
-                selectButton(name);
-                Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
-                break;
-
-            default:
-                break;
-        }
-
-        switch(buttonEnum)
-        {
-            case Util.ButtonEnum.NewGame: 
                 Game.New();
                 break;
 
@@ -522,6 +519,10 @@ public class BoardManager : MonoBehaviour
 
             case Util.ButtonEnum.LoadGame:
                 Game.Load(getPath());
+                if(Game.PlayerWhite.Intellegence == Player.PlayerIntellegenceNames.Human)
+                    ConfigModel._player = Player.PlayerColourNames.White; 
+                else
+                    ConfigModel._player = Player.PlayerColourNames.Black; 
             break;
 
             case Util.ButtonEnum.File1:
@@ -529,6 +530,23 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.File3:
                 setSelectedFile(buttonEnum);
             break;
+        }
+
+        switch(buttonEnum)
+        {
+            case Util.ButtonEnum.NewGame: 
+            case Util.ButtonEnum.Undo:
+            case Util.ButtonEnum.Redo:
+            case Util.ButtonEnum.SaveGame:
+            case Util.ButtonEnum.LoadGame:
+                var name = Util.Constants.ButtonEnumToString(buttonEnum);
+                selectButton(name);
+                Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
+                Util.Scheduler.RegisterEvent(2000, new Util.FunctionPointer(Game.ResumePlay));
+                break;
+
+            default:
+                break;
         }
     }
 
