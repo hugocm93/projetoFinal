@@ -41,8 +41,11 @@ public class BoardManager : MonoBehaviour
 
     public GameObject _selectedFile;
     public GameObject _selection;
+    private List<GameObject> _statuses;
     public GameObject _statusPrefab;
     private GameObject _status;
+    private GameObject _whiteTimer;
+    private GameObject _blackTimer;
 
     private string _fileName;
 
@@ -68,6 +71,26 @@ public class BoardManager : MonoBehaviour
         // Desenhar cursor
         _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
+
+        // Timer Status
+        var tileSize = Util.Constants._tile_size * Util.Constants._scale;
+        var boardLength = 8 * tileSize;
+        var blackPoint = new Vector3((boardLength + Util.Constants._origin.x) / -2, 0, Util.Constants._origin.z + boardLength);
+        var whitePoint = new Vector3((boardLength + Util.Constants._origin.x) / -2, 0, Util.Constants._origin.z);
+
+        _whiteTimer = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+        _whiteTimer.transform.SetParent(transform);
+        _whiteTimer.transform.position = whitePoint;
+        _whiteTimer.GetComponent<TextMesh>().color = Color.black;
+        _whiteTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().color = Color.white;
+        _blackTimer = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+        _blackTimer.transform.SetParent(transform);
+        _blackTimer.transform.position = blackPoint;
+        _blackTimer.GetComponent<TextMesh>().color = Color.black;
+        _blackTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().color = Color.white;
+        _statuses = new List<GameObject>();
+        _statuses.Add(_whiteTimer);
+        _statuses.Add(_blackTimer);
 
         _cursor.transform.position = new Vector3(0, 20, 0);
         _cursorTarget = GameObject.Find("CursorTarget");
@@ -96,6 +119,7 @@ public class BoardManager : MonoBehaviour
                                         Player.PlayerIntellegenceNames.Computer : Player.PlayerIntellegenceNames.Human;
 
         Game.DifficultyLevel = ConfigModel._difficulty;
+        Game.MaximumSearchDepth = ConfigModel._difficulty;
         Game.UseRandomOpeningMoves = true;
         Game.BackupGamePath = getPath("saveBackup");
         Game.ShowThinking = true;
@@ -106,6 +130,7 @@ public class BoardManager : MonoBehaviour
     {
         if(!show && _status != null)
         {
+            _statuses.Remove(_status);
             Destroy(_status);
             _status = null;
         }
@@ -115,7 +140,22 @@ public class BoardManager : MonoBehaviour
                 _status = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
             _status.GetComponent<TextMesh>().text = message;
             _status.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = message;
+            if(!_statuses.Contains(_status))
+                _statuses.Add(_status);
         }
+    }
+
+    private void updateTimers()
+    {
+        var time = Game.PlayerWhite.Clock.TimeElapsedDisplay.Hours + ":" + Game.PlayerWhite.Clock.TimeElapsedDisplay.Minutes + ":" 
+                   + Game.PlayerWhite.Clock.TimeElapsedDisplay.Seconds;
+        _whiteTimer.GetComponent<TextMesh>().text = time;
+        _whiteTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
+
+        time = Game.PlayerBlack.Clock.TimeElapsedDisplay.Hours + ":" + Game.PlayerBlack.Clock.TimeElapsedDisplay.Minutes + ":" 
+               + Game.PlayerBlack.Clock.TimeElapsedDisplay.Seconds;
+        _blackTimer.GetComponent<TextMesh>().text = time;
+        _blackTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
     }
         
     private string getPath(string fileName = null)
@@ -136,11 +176,12 @@ public class BoardManager : MonoBehaviour
 
     private void Update()
     {
+        updateTimers();
+        updateStatus();
         mouseLeftButtonClicked();
         updateCursor();
         movePieces();
         destroyOldGameObjects();
-        updateStatus();
         billBoardEffect();
         Util.Scheduler.ExecuteSchedule();
 
@@ -175,9 +216,6 @@ public class BoardManager : MonoBehaviour
 
     private void billBoardEffect()
     {
-        if(_status == null)
-            return; 
-
         Camera camera;
         var ARcameraObj = GameObject.Find("ARCamera");
         if(ARcameraObj == null)
@@ -185,9 +223,10 @@ public class BoardManager : MonoBehaviour
         else
             camera = ARcameraObj.GetComponent<Camera>();
 
-        //Look at
         var point = camera.transform.position;
-        _status.transform.rotation = Quaternion.LookRotation(_status.transform.position - point);
+    
+        foreach(var status in _statuses)
+            status.transform.rotation = Quaternion.LookRotation(status.transform.position - point);
     }
 
     private void dummy()
@@ -304,7 +343,7 @@ public class BoardManager : MonoBehaviour
                     continue;
 
                 var tileSize = Util.Constants._tile_size * Util.Constants._scale;
-                var boardLength = 9 * tileSize;
+                var boardLength = 8 * tileSize;
                 var blackArea = new Vector3(boardLength, 0, Util.Constants._origin.z + boardLength / 2);
                 var whiteArea = new Vector3(boardLength, 0, Util.Constants._origin.z);
                 var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;

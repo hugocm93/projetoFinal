@@ -8,7 +8,7 @@ public enum Selection
 public class ConfigModel
 {
     public static SharpChess.Model.Player.PlayerColourNames _player = SharpChess.Model.PlayerWhite.PlayerColourNames.White;
-    public static int _difficulty = 0;
+    public static int _difficulty = 1;
     public static bool _sound = true;
     public static bool _ar = true;
     public static bool _showLegalMoves = true;

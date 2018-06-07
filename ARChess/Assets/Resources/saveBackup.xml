@@ -1,3 +1,1 @@
-<Game FEN="" TurnNo="1" WhitePlayer="Computer" BlackPlayer="Human" BoardOrientation="White" Version="2.6.9.0" DifficultyLevel="0" ClockMoves="40" ClockSeconds="300" MaximumSearchDepth="1" Pondering="0" UseRandomOpeningMoves="1">
-  <Move MoveNo="1" Name="Standard" From="f2" To="f4" SecondsElapsed="0" />
-</Game>
+<Game FEN="" TurnNo="0" WhitePlayer="Human" BlackPlayer="Computer" BoardOrientation="White" Version="2.6.9.0" DifficultyLevel="0" ClockMoves="40" ClockSeconds="300" MaximumSearchDepth="0" Pondering="0" UseRandomOpeningMoves="1" />
