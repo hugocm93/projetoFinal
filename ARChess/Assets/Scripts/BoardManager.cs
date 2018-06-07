@@ -39,6 +39,8 @@ public class BoardManager : MonoBehaviour
     private GameObject _cursor;
     private GameObject _cursorTarget;
 
+    public GameObject _selectedFile;
+    public GameObject _selection;
     public GameObject _statusPrefab;
     private GameObject _status;
 
@@ -252,7 +254,7 @@ public class BoardManager : MonoBehaviour
                 var go = _piecesGameObject[item.first];
                 var dist = 30 + Vector3.Distance(go.transform.position, item.second);
                 go.transform.position = Vector3.MoveTowards(go.transform.position, item.second,  dist * Time.deltaTime);
-                if(go.transform.position == item.second)
+                if(Vector3.Distance(go.transform.position, item.second) <= 0.01)
                     done.Add(item);
             }
 
@@ -483,9 +485,8 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.Redo:
             case Util.ButtonEnum.SaveGame:
             case Util.ButtonEnum.LoadGame:
-                highlightButton(buttonEnum);
-                Util.Scheduler.RegisterEvent(400, new Util.ParamiterizedFunctionPointer(RestoreButtonColor), 
-                    buttonEnum);
+                selectButton(buttonEnum);
+                Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
                 break;
 
             default:
@@ -523,35 +524,29 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.File1:
             case Util.ButtonEnum.File2:
             case Util.ButtonEnum.File3:
-                foreach(var file in new Util.ButtonEnum[]{Util.ButtonEnum.File1, Util.ButtonEnum.File2, Util.ButtonEnum.File3})
-                    RestoreButtonColor(file);
-
-                _fileName = Util.Constants.ButtonEnumToString(buttonEnum);
-                highlightButton(buttonEnum);
+                setSelectedFile(buttonEnum);
             break;
         }
     }
 
-    public void RestoreButtonColor(object[] buttonEnum)
-    {
-        RestoreButtonColor((Util.ButtonEnum)(buttonEnum[0]));
-    }
-
-    public void RestoreButtonColor(Util.ButtonEnum buttonEnum)
-    {
-        buttonSetColor(buttonEnum, Color.white);
-    }
-
-    public void highlightButton(Util.ButtonEnum buttonEnum)
-    {
-        buttonSetColor(buttonEnum, Color.yellow);
-    }
-
-    public void buttonSetColor(Util.ButtonEnum buttonEnum, Color color)
+    public void selectButton(Util.ButtonEnum buttonEnum)
     {
         var name = Util.Constants.ButtonEnumToString(buttonEnum);
         var go = GameObject.Find(name);
-        go.GetComponent<MeshRenderer>().material.color = color;
+        _selection.transform.position = go.transform.position; 
+        _selection.SetActive(true);
+    }
+
+    public void unselectButton()
+    {
+        _selection.SetActive(false);
+    }
+
+    public void setSelectedFile(Util.ButtonEnum buttonEnum)
+    {
+        _fileName = Util.Constants.ButtonEnumToString(buttonEnum);
+        var go = GameObject.Find(_fileName);
+        _selectedFile.transform.position = go.transform.position;
     }
 
     private bool onBoard(Vector2Int v)
