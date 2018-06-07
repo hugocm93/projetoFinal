@@ -147,13 +147,13 @@ public class BoardManager : MonoBehaviour
 
     private void updateTimers()
     {
-        var time = Game.PlayerWhite.Clock.TimeElapsedDisplay.Hours + ":" + Game.PlayerWhite.Clock.TimeElapsedDisplay.Minutes + ":" 
-                   + Game.PlayerWhite.Clock.TimeElapsedDisplay.Seconds;
+        var time = Game.PlayerWhite.Clock.TimeElapsedDisplay.Hours + "h:" + Game.PlayerWhite.Clock.TimeElapsedDisplay.Minutes + "m:" 
+                   + Game.PlayerWhite.Clock.TimeElapsedDisplay.Seconds + "s";
         _whiteTimer.GetComponent<TextMesh>().text = time;
         _whiteTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
 
-        time = Game.PlayerBlack.Clock.TimeElapsedDisplay.Hours + ":" + Game.PlayerBlack.Clock.TimeElapsedDisplay.Minutes + ":" 
-               + Game.PlayerBlack.Clock.TimeElapsedDisplay.Seconds;
+        time = Game.PlayerBlack.Clock.TimeElapsedDisplay.Hours + "h:" + Game.PlayerBlack.Clock.TimeElapsedDisplay.Minutes + "m:" 
+               + Game.PlayerBlack.Clock.TimeElapsedDisplay.Seconds + "s";
         _blackTimer.GetComponent<TextMesh>().text = time;
         _blackTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
     }
@@ -264,29 +264,34 @@ public class BoardManager : MonoBehaviour
                     {
                         _toBeMoved.Add(new Util.Pair<Piece, Vector3>(square.Piece, positionTo));
                     }
-
                 }
                 catch(KeyNotFoundException)
                 {
-                    int index = -1;
-                    switch(square.Piece.Name)
-                    {
-                        case Piece.PieceNames.Pawn: index = 3; break;
-                        case Piece.PieceNames.Rook: index = 5; break;
-                        case Piece.PieceNames.Knight: index = 2; break;
-                        case Piece.PieceNames.Bishop: index = 0; break;
-                        case Piece.PieceNames.Queen: index = 4; break;
-                        case Piece.PieceNames.King: index = 1; break;
-                    }
-
                     var color = square.Piece.Player.Colour;
-                    if(color == Player.PlayerColourNames.White)
-                        index += 6;
-                    
+                    int index = getIndex(square.Piece.Name, color);
                     spawnChessPiece(index, new Vector2Int(square.File, square.Rank), color);
                 }
             }
         }
+    }
+
+    private int getIndex(Piece.PieceNames name, Player.PlayerColourNames color)
+    {
+        int index = -1;
+        switch(name)
+        {
+            case Piece.PieceNames.Pawn: index = 3; break;
+            case Piece.PieceNames.Rook: index = 5; break;
+            case Piece.PieceNames.Knight: index = 2; break;
+            case Piece.PieceNames.Bishop: index = 0; break;
+            case Piece.PieceNames.Queen: index = 4; break;
+            case Piece.PieceNames.King: index = 1; break;
+        }
+
+        if(color == Player.PlayerColourNames.White)
+            index += 6;
+
+        return index;
     }
 
     private void movePieces()
@@ -307,7 +312,26 @@ public class BoardManager : MonoBehaviour
             }
 
             foreach(var item in done)
+            {
+                var go = _piecesGameObject[item.first];
+                if(item.first.Name == Piece.PieceNames.Pawn && !go.name.Contains("Pawn"))
+                {
+                    var queen = _piecesGameObject[item.first];
+                    var pawnIndex = getIndex(Piece.PieceNames.Pawn, item.first.Player.Colour);
+                    _piecesGameObject[item.first] = instantiatePiece(pawnIndex, queen.transform.position, item.first.Player.Colour);
+                    Destroy(queen);
+                }
+
+                if(item.first.Name == Piece.PieceNames.Queen && !go.name.Contains("Queen"))
+                {
+                    var pawn = _piecesGameObject[item.first];
+                    var queenIndex = getIndex(Piece.PieceNames.Queen, item.first.Player.Colour);
+                    _piecesGameObject[item.first] = instantiatePiece(queenIndex, pawn.transform.position, item.first.Player.Colour);
+                    Destroy(pawn);
+                }
+
                 _toBeMoved.Remove(item);
+            }
 
             if(_toBeMoved.Count == 0)
                 _audioSourceDragging.Pause();
@@ -429,7 +453,8 @@ public class BoardManager : MonoBehaviour
             if(move.To != squareTo)
                 continue;
 
-            //var pieceInDestination = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
+            if(move.IsPromotion() && move.Name != Move.MoveNames.PawnPromotionQueen)
+                continue;
 
             Game.MakeAMove(move.Name, move.Piece, move.To);
         }
@@ -630,16 +655,21 @@ public class BoardManager : MonoBehaviour
 
     private void spawnChessPiece(int index, Vector2Int position, Player.PlayerColourNames color)
     {
+        var piece = Board.GetPiece(position.x, position.y);
+        _piecesGameObject[piece] = instantiatePiece(index, Util.Constants.getTileCenter(position), color);
+    }
+
+    private GameObject instantiatePiece(int index, Vector3 tilePosition, Player.PlayerColourNames color)
+    {
         var quaternion = Quaternion.identity;
         if(color == Player.PlayerColourNames.Black) // black pieces
             quaternion = Quaternion.Euler(0, 180, 0); //face pieces to the center of the board
 
-        var go = Instantiate(_chessPiecesPrefabs[index], Util.Constants.getTileCenter(position), quaternion) as GameObject;
+        var go = Instantiate(_chessPiecesPrefabs[index], tilePosition, quaternion) as GameObject;
         go.transform.SetParent(transform);
         go.transform.localScale = go.transform.localScale * 5.0f;
 
-        var piece = Board.GetPiece(position.x, position.y);
-        _piecesGameObject[piece] = go;
+        return go;
     }
         
     private void endGame()
