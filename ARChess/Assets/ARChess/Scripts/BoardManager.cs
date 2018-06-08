@@ -10,106 +10,99 @@ public class BoardManager : MonoBehaviour
 {
     public static BoardManager _instance{set; get;}
 
+    //Prefabs
 	public List<GameObject> _chessPiecesPrefabs;
-    public Material _selectedMat;
-    public GameObject _cursorPrefab;
-
-    private AudioSource _audioSourceDragging;
-    private AudioSource _audioSourceClicking;
-    private Moves _possibleMoves;
-    private Square _squareFrom;
-    private Square _squareTo;
-    private Square _squareLastFrom;
-    private Square _squareLastTo;
-    private Piece _selectedPiece;
-
-    private Dictionary<Piece, GameObject> _piecesGameObject;
-
-    private System.Object _toBeDestroyedThreadLocker;
-    private List<KeyValuePair<Piece, GameObject>> _toBeDestroyed;
-
-    private System.Object _toBeMovedThreadLocker;
-    private List<Util.Pair<Piece, Vector3>> _toBeMoved;
-
-    private System.Object _toBeUpdatedThreadLocker;
-    private string _toBeUpdated;
-
-    private Material _previousMat;
-    private Vector2Int _tileUnderCursor;
-    private GameObject _cursor;
-    private GameObject _cursorTarget;
-
-    public GameObject _selectedFile;
-    public GameObject _selection;
-    private List<GameObject> _statuses;
     public GameObject _statusPrefab;
-    private GameObject _status;
+
+    //Elementos de cena - instanciados no unity
+    public AudioSource _audioSourceClicking;
+    public AudioSource _audioSourceDragging;
+    public GameObject _cursorTarget;
+    public GameObject _cursor;
+    public GameObject _fileSelection;
+    public GameObject _buttonSelection;
+    public GameObject _virtualButton;
+    public Material _pieceSelectedMaterial;
+    public Camera _camera;
+
+    //Elementos de cena - instanciados no script
     private GameObject _whiteTimer;
     private GameObject _blackTimer;
+    private GameObject _checkLabel;
+    
+    //Controle de captura de pecas
+    private Dictionary<Piece, GameObject> _piecesGameObject;
+    private System.Object _pieceToBeCapturedThreadLocker;
+    private List<KeyValuePair<Piece, GameObject>> _pieceToBeCaptured;
 
+    //Controle de movimentacao de pecas
+    private System.Object _pieceToBeMovedThreadLocker;
+    private List<Util.Pair<Piece, Vector3>> _pieceToBeMoved;
+    
+    // Controle de label 3d de check e checkmate
+    private System.Object _checkLabelThreadLock;
+    private string _checkText;
+
+    //Controle de efeito de billboard para labels 3d
+    private List<GameObject> _3dLabels;
+
+    //Controle selecao de pecas
+    private Piece _selectedPiece;
+    private Material _previousPieceMaterial;
+    private Vector3 _lastCursorPosition;
+    private Vector2Int _selectedSquare;
+    private Util.Scheduler _clickScheduler;
+
+    //Controle de tempo geral
     private Util.Scheduler _generalScheduler;
-    private Util.Scheduler _timerClickScheduler;
-    private Vector3 _lastCursorPos;
 
+    //Controle de arquivo de save
     private string _fileName;
 
 	void Start()
 	{
-        // Construtor
         _instance = this;
-		_tileUnderCursor = Util.Constants._none;
+
+        //Inicializar campos
+        _selectedSquare = Util.Constants._none;
         _piecesGameObject = new Dictionary<Piece, GameObject>();
-
-        _toBeDestroyedThreadLocker = new System.Object();
-        _toBeDestroyed = new List<KeyValuePair<Piece, GameObject>>();
-
-        _toBeMovedThreadLocker = new System.Object();
-        _toBeMoved = new List<Util.Pair<Piece, Vector3>>();
-
-        _toBeUpdatedThreadLocker = new System.Object();
-
+        _pieceToBeCapturedThreadLocker = new System.Object();
+        _pieceToBeCaptured = new List<KeyValuePair<Piece, GameObject>>();
+        _pieceToBeMovedThreadLocker = new System.Object();
+        _pieceToBeMoved = new List<Util.Pair<Piece, Vector3>>();
+        _checkLabelThreadLock = new System.Object();
         _generalScheduler = new Util.Scheduler();
-        _timerClickScheduler = new Util.Scheduler();
+        _clickScheduler = new Util.Scheduler();
+        _3dLabels = new List<GameObject>();
 
         // Inicializar highlights
         if(TileHighlight._instance)
             TileHighlight._instance.hideTileHighlights();
 
-        // Desenhar cursor
-        _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
-        _cursor.transform.SetParent(transform);
-        _lastCursorPos = _cursor.transform.position;
+        // Inicializar cursor
+        if(_cursor != null)
+        {
+            _cursor.transform.SetParent(transform);
+            _lastCursorPosition = _cursor.transform.position;
+        }
 
-        // Timer Status
-        var tileSize = Util.Constants._tile_size * Util.Constants._scale;
-        var boardLength = 8 * tileSize;
-        var blackPoint = new Vector3((boardLength + Util.Constants._origin.x) / -2, 0, Util.Constants._origin.z + boardLength);
-        var whitePoint = new Vector3((boardLength + Util.Constants._origin.x) / -2, 0, Util.Constants._origin.z);
+        // 3d labels de timer
+        var x = (Util.Constants._boardLength + Util.Constants._origin.x) / -2;
+        var blackPoint = new Vector3(x, 0, Util.Constants._origin.z + Util.Constants._boardLength);
+        var whitePoint = new Vector3(x, 0, Util.Constants._origin.z);
+        initializeTimerLabel(out _whiteTimer, whitePoint);
+        initializeTimerLabel(out _blackTimer, blackPoint);
+        _3dLabels.Add(_whiteTimer);
+        _3dLabels.Add(_blackTimer);
 
-        _whiteTimer = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
-        _whiteTimer.transform.SetParent(transform);
-        _whiteTimer.transform.position = whitePoint;
-        _whiteTimer.GetComponent<TextMesh>().color = Color.black;
-        _whiteTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().color = Color.white;
-        _blackTimer = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
-        _blackTimer.transform.SetParent(transform);
-        _blackTimer.transform.position = blackPoint;
-        _blackTimer.GetComponent<TextMesh>().color = Color.black;
-        _blackTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().color = Color.white;
-        _statuses = new List<GameObject>();
-        _statuses.Add(_whiteTimer);
-        _statuses.Add(_blackTimer);
-
-        _cursor.transform.position = new Vector3(0, 20, 0);
-        _cursorTarget = GameObject.Find("CursorTarget");
-        _audioSourceDragging = GameObject.Find("AudioSource").GetComponent<AudioSource>();
-        _audioSourceClicking = GameObject.Find("AudioSource2").GetComponent<AudioSource>();
+        //Inicializar audio
         _audioSourceDragging.loop = true;
         _audioSourceDragging.volume = ConfigModel._sound == true ? 1 : 0;
         _audioSourceClicking.volume = ConfigModel._sound == true ? 1 : 0;
 
-        if(ConfigModel._selection == Selection.Time)
-            GameObject.Find("SelectVirtualButton").SetActive(false);
+        //Inicializar modo de selecao
+        if(ConfigModel._selection == Selection.Time && _virtualButton != null)
+            _virtualButton.SetActive(false);
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
@@ -123,50 +116,83 @@ public class BoardManager : MonoBehaviour
         Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
         Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
 
-        Game.PlayerWhite.Intellegence = ConfigModel._player == Player.PlayerColourNames.White ? 
+        bool isPlayerWhite = ConfigModel._player == Player.PlayerColourNames.White;
+        Game.PlayerWhite.Intellegence =  isPlayerWhite ? 
                                         Player.PlayerIntellegenceNames.Human : Player.PlayerIntellegenceNames.Computer;
-
-        Game.PlayerBlack.Intellegence = ConfigModel._player == Player.PlayerColourNames.White ? 
+        Game.PlayerBlack.Intellegence = isPlayerWhite ? 
                                         Player.PlayerIntellegenceNames.Computer : Player.PlayerIntellegenceNames.Human;
-
         Game.DifficultyLevel = ConfigModel._difficulty;
         Game.MaximumSearchDepth = ConfigModel._difficulty;
         Game.UseRandomOpeningMoves = true;
         Game.BackupGamePath = getPath("saveBackup");
         Game.ShowThinking = true;
-        interfaceButtonClicked(Util.ButtonEnum.File1);
+
+        //Inicializar botao de arquivo
+        setSelectedFile(Util.ButtonEnum.File1);
 	}
 
-    private void showStatusMessage(bool show, string message = "")
+    private void Update()
     {
-        if(!show && _status != null)
+        //Checa inputs
+        updateCursor();
+        checkIfMouseLeftButtonWasClicked();
+
+        //Atualiza interface
+        movePiecesToBeMoved();
+        capturePiecesToBeCaptured();
+        updateTimers();
+        updateCheckLabel();
+        billboardEffect();
+        #if DEBUG
+        drawChessboard();
+        #endif
+
+        // Executa schedulers
+        _generalScheduler.ExecuteSchedule();
+        _clickScheduler.ExecuteSchedule();
+    }
+
+    private void initializeTimerLabel(out GameObject _timerLabel, Vector3 point)
+    {
+        _timerLabel = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+        _timerLabel.transform.SetParent(transform);
+        _timerLabel.transform.position = point;
+        _timerLabel.GetComponent<TextMesh>().color = Color.black;
+        _timerLabel.transform.GetChild(0).gameObject.GetComponent<TextMesh>().color = Color.white;
+    } 
+
+    private void showCheckMessage(bool show)
+    {
+        if(!show && _checkLabel != null)
         {
-            _statuses.Remove(_status);
-            Destroy(_status);
-            _status = null;
+            _3dLabels.Remove(_checkLabel);
+            Destroy(_checkLabel);
+            _checkLabel = null;
         }
         else if(show)
         {
-            if(_status == null)
-                _status = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
-            _status.GetComponent<TextMesh>().text = message;
-            _status.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = message;
-            if(!_statuses.Contains(_status))
-                _statuses.Add(_status);
+            if(_checkLabel == null)
+                _checkLabel = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+            if(!_3dLabels.Contains(_checkLabel))
+                _3dLabels.Add(_checkLabel);
+
+            _checkLabel.GetComponent<TextMesh>().text = _checkText;
+            _checkLabel.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = _checkText;
         }
     }
 
     private void updateTimers()
     {
-        var time = Game.PlayerWhite.Clock.TimeElapsedDisplay.Hours + "h:" + Game.PlayerWhite.Clock.TimeElapsedDisplay.Minutes + "m:" 
-                   + Game.PlayerWhite.Clock.TimeElapsedDisplay.Seconds + "s";
-        _whiteTimer.GetComponent<TextMesh>().text = time;
-        _whiteTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
+        updateTimer(_whiteTimer, Game.PlayerWhite);
+        updateTimer(_blackTimer, Game.PlayerBlack);
+    }
 
-        time = Game.PlayerBlack.Clock.TimeElapsedDisplay.Hours + "h:" + Game.PlayerBlack.Clock.TimeElapsedDisplay.Minutes + "m:" 
-               + Game.PlayerBlack.Clock.TimeElapsedDisplay.Seconds + "s";
-        _blackTimer.GetComponent<TextMesh>().text = time;
-        _blackTimer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
+    private void updateTimer(GameObject timer, Player player)
+    {
+        var clock = player.Clock;
+        var time = clock.TimeElapsedDisplay.Hours + "h:" + clock.TimeElapsedDisplay.Minutes + "m:" + clock.TimeElapsedDisplay.Seconds + "s";
+        timer.GetComponent<TextMesh>().text = time;
+        timer.transform.GetChild(0).gameObject.GetComponent<TextMesh>().text = time;
     }
         
     private string getPath(string fileName = null)
@@ -175,7 +201,7 @@ public class BoardManager : MonoBehaviour
             fileName = _fileName;
         
         #if UNITY_EDITOR
-        return Application.dataPath +"/Resources/" + fileName + ".xml";
+        return Application.dataPath + "/Resources/" + fileName + ".xml";
         #elif UNITY_ANDROID
         return Application.persistentDataPath + fileName + ".xml";
         #elif UNITY_IPHONE
@@ -183,63 +209,36 @@ public class BoardManager : MonoBehaviour
         #else
         return Application.dataPath +"/"+ fileName + ".xml";
         #endif
-        }
-
-    private void Update()
-    {
-        updateTimers();
-        updateStatus();
-        mouseLeftButtonClicked();
-        updateCursor();
-        movePieces();
-        destroyOldGameObjects();
-        billBoardEffect();
-        _generalScheduler.ExecuteSchedule();
-        _timerClickScheduler.ExecuteSchedule();
-
-        #if DEBUG
-        drawChessboard();
-        #endif
     }
 
-    private void updateStatus()
+    private void updateCheckLabel()
     {
-        lock(_toBeUpdatedThreadLocker)
+        lock(_checkLabelThreadLock)
         {
-            if(_toBeUpdated != null)
-                showStatusMessage(true, _toBeUpdated);
-            else
-                showStatusMessage(false);
+            showCheckMessage(_checkText != null);
         }
     }
 
     private void verifyCheck()
     {
-        lock(_toBeUpdatedThreadLocker)
+        lock(_checkLabelThreadLock)
         {
-            _toBeUpdated = null;
+            _checkText = null;
 
             if(Game.PlayerBlack.IsInCheck || Game.PlayerWhite.IsInCheck)
-                _toBeUpdated = "Check!";
+                _checkText = "Check!";
             if(Game.PlayerBlack.IsInCheckMate || Game.PlayerWhite.IsInCheckMate)
-                _toBeUpdated = "Check Mate!";
+                _checkText = "Check Mate!";
         }
     }
 
-    private void billBoardEffect()
+    private void billboardEffect()
     {
-        Camera camera;
-        var ARcameraObj = GameObject.Find("ARCamera");
-        if(ARcameraObj == null)
-            camera = Camera.main;
-        else
-            camera = ARcameraObj.GetComponent<Camera>();
-
-        var targetPoint = camera.transform.position;
+        var targetPoint = _camera.transform.position;
         targetPoint *= 10;
 
-        foreach(var status in _statuses)
-            status.transform.rotation = Quaternion.LookRotation(status.transform.position - targetPoint);
+        foreach(var label in _3dLabels)
+            label.transform.rotation = Quaternion.LookRotation(label.transform.position - targetPoint);
 
         var goList = new List<GameObject>();
         foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
@@ -248,7 +247,7 @@ public class BoardManager : MonoBehaviour
             goList.Add(go);
         }  
 
-        goList.Add(_selectedFile);
+        goList.Add(_fileSelection);
 
         foreach(var go in goList)
         {
@@ -267,6 +266,8 @@ public class BoardManager : MonoBehaviour
 
     private void dummy()
     {
+        //Necessaria pois a game engine inevitávelmente tenta chamar 
+        //alguns eventos não interessantes, porém devem existir as callbacks
     }
 
     private void BoardPositionChangedEvent()
@@ -280,9 +281,9 @@ public class BoardManager : MonoBehaviour
         foreach(var item in _piecesGameObject)
             if(!item.Key.IsInPlay)
             {
-                lock(_toBeDestroyedThreadLocker)
+                lock(_pieceToBeCapturedThreadLocker)
                 {
-                    _toBeDestroyed.Add(item);
+                    _pieceToBeCaptured.Add(item);
                 }
             }
 
@@ -296,9 +297,9 @@ public class BoardManager : MonoBehaviour
                 {
                     var positionTo = Util.Constants.getTileCenter(new Vector2Int(square.File, square.Rank));
                     var go = _piecesGameObject[square.Piece];
-                    lock(_toBeMovedThreadLocker)
+                    lock(_pieceToBeMovedThreadLocker)
                     {
-                        _toBeMoved.Add(new Util.Pair<Piece, Vector3>(square.Piece, positionTo));
+                        _pieceToBeMoved.Add(new Util.Pair<Piece, Vector3>(square.Piece, positionTo));
                     }
                 }
                 catch(KeyNotFoundException)
@@ -330,12 +331,12 @@ public class BoardManager : MonoBehaviour
         return index;
     }
 
-    private void movePieces()
+    private void movePiecesToBeMoved()
     {
-        lock(_toBeMovedThreadLocker)
+        lock(_pieceToBeMovedThreadLocker)
         {
             List<Util.Pair<Piece, Vector3>> done = new List<Util.Pair<Piece, Vector3>>();
-            foreach(var item in _toBeMoved)
+            foreach(var item in _pieceToBeMoved)
             {
                 if(containsPlayerMove() && item.first.Player != Game.PlayerToPlay)
                     continue;
@@ -350,26 +351,21 @@ public class BoardManager : MonoBehaviour
             foreach(var item in done)
             {
                 var go = _piecesGameObject[item.first];
-                if(item.first.Name == Piece.PieceNames.Pawn && !go.name.Contains("Pawn"))
-                {
-                    var queen = _piecesGameObject[item.first];
-                    var pawnIndex = getIndex(Piece.PieceNames.Pawn, item.first.Player.Colour);
-                    _piecesGameObject[item.first] = instantiatePiece(pawnIndex, queen.transform.position, item.first.Player.Colour);
-                    Destroy(queen);
-                }
+                var checkConsistencyList = new List<Util.Pair<Piece.PieceNames, string>>();
+                checkConsistencyList.Add(new Util.Pair<Piece.PieceNames, string>(Piece.PieceNames.Pawn, "Pawn"));
+                checkConsistencyList.Add(new Util.Pair<Piece.PieceNames, string>(Piece.PieceNames.Queen, "Queen"));
+                foreach(var pair in checkConsistencyList)
+                    if(item.first.Name == pair.first && !go.name.Contains(pair.second))
+                    {
+                        var index = getIndex(pair.first, item.first.Player.Colour);
+                        _piecesGameObject[item.first] = instantiatePiece(index, go.transform.position, item.first.Player.Colour);
+                        Destroy(go);
+                    }
 
-                if(item.first.Name == Piece.PieceNames.Queen && !go.name.Contains("Queen"))
-                {
-                    var pawn = _piecesGameObject[item.first];
-                    var queenIndex = getIndex(Piece.PieceNames.Queen, item.first.Player.Colour);
-                    _piecesGameObject[item.first] = instantiatePiece(queenIndex, pawn.transform.position, item.first.Player.Colour);
-                    Destroy(pawn);
-                }
-
-                _toBeMoved.Remove(item);
+                _pieceToBeMoved.Remove(item);
             }
 
-            if(_toBeMoved.Count == 0)
+            if(_pieceToBeMoved.Count == 0)
                 _audioSourceDragging.Pause();
             else if(!_audioSourceDragging.isPlaying)
                 _audioSourceDragging.UnPause();
@@ -378,26 +374,26 @@ public class BoardManager : MonoBehaviour
 
     private bool containsPlayerMove()
     {
-        lock(_toBeMovedThreadLocker)
+        lock(_pieceToBeMovedThreadLocker)
         {
-            foreach(var item in _toBeMoved)
+            foreach(var item in _pieceToBeMoved)
                 if(item.first.Player == Game.PlayerToPlay)
                     return true;
         }
         return false;
     }
 
-    private void destroyOldGameObjects()
+    private void capturePiecesToBeCaptured()
     {
-        lock(_toBeMovedThreadLocker)
+        lock(_pieceToBeMovedThreadLocker)
         {
-            if(_toBeMoved.Count != 0)
+            if(_pieceToBeMoved.Count != 0)
                 return;
         }
 
-        lock(_toBeDestroyedThreadLocker)
+        lock(_pieceToBeCapturedThreadLocker)
         {
-            foreach(var item in _toBeDestroyed)
+            foreach(var item in _pieceToBeCaptured)
             {
                 if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
                     continue;
@@ -409,42 +405,37 @@ public class BoardManager : MonoBehaviour
                 var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
                 item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
             }
-            _toBeDestroyed.Clear();
+            _pieceToBeCaptured.Clear();
         }
     }
 
     private void updateCursor()
     {
         if(!_cursorTarget)
-        {
-            _cursor.transform.position = new Vector3(-1000, -1000, -1000);
             return;
-        }
-        
+
+        //Atualiza posicao do cursor de acordo com o marcador AR
         var pos = _cursorTarget.transform.position;
         _cursor.transform.position = new Vector3(pos.x, _cursor.transform.position.y, pos.z);
 
+        //Cadastra evento de clique cado o modo de selecao seja timer e o cursor encontra-se parado em um lugar
         var newCursorPos = _cursor.transform.position;
-        if(Vector3.Distance(newCursorPos, _lastCursorPos) > 5 && ConfigModel._selection == Selection.Time)
+        if(Vector3.Distance(newCursorPos, _lastCursorPosition) > 5 && ConfigModel._selection == Selection.Time)
         {
-            _timerClickScheduler.Clear();
-            _lastCursorPos = newCursorPos;
-            _timerClickScheduler.RegisterEvent(500, new Util.FunctionPointer(selectButtonClicked));
+            _clickScheduler.Clear();
+            _lastCursorPosition = newCursorPos;
+            _clickScheduler.RegisterEvent(500, new Util.FunctionPointer(selectVirtualButtonClicked));
         }
     }
 
     private void selectPiece()
     {
-        if(_tileUnderCursor == Util.Constants._none)
-        {
+        if(_selectedSquare == Util.Constants._none)
             return;
-        }
        
-        var piece = Board.GetPiece(_tileUnderCursor.x, _tileUnderCursor.y);
+        var piece = Board.GetPiece(_selectedSquare.x, _selectedSquare.y);
         if(piece == null || piece.Player != Game.PlayerToPlay || piece.Player.Colour != ConfigModel._player)
-        {
             return;
-        }
 
         _selectedPiece = piece;
         GameObject go;
@@ -458,17 +449,17 @@ public class BoardManager : MonoBehaviour
             return;
         }
 
-        // Set selection outline
-        _previousMat = go.GetComponentsInChildren<MeshRenderer>()[0].material;
-        _selectedMat.mainTexture = _previousMat.mainTexture;
-        changeMaterial(go, _selectedMat);
+        //Usa o material que indica selecao na peca
+        _previousPieceMaterial = go.GetComponentsInChildren<MeshRenderer>()[0].material;
+        _pieceSelectedMaterial.mainTexture = _previousPieceMaterial.mainTexture;
+        changeMaterial(go, _pieceSelectedMaterial);
 
+        //Mostra os movimentos legais da peca
         bool[,] allowedMoves = new bool[8, 8];
         Moves legalMoves = new Moves();
         _selectedPiece.GenerateLegalMoves(legalMoves);
         foreach(Move move in legalMoves)
             allowedMoves[move.To.File, move.To.Rank] = true;
-            
         TileHighlight._instance.highlightPossibleMoves(allowedMoves);
     }
 
@@ -479,17 +470,16 @@ public class BoardManager : MonoBehaviour
         foreach(var rend in children)
         {
             var mats = new Material[rend.materials.Length];
-            for (var j = 0; j < rend.materials.Length; j++)
-            {
+            for(var j = 0; j < rend.materials.Length; j++)
                 mats[j] = newMat;
-            }
+
             rend.materials = mats;
         }
     }
 
     private void movePiece()
     {
-        var squareTo = Board.GetSquare(_tileUnderCursor.x, _tileUnderCursor.y);
+        var squareTo = Board.GetSquare(_selectedSquare.x, _selectedSquare.y);
         Moves legalMoves = new Moves();
         _selectedPiece.GenerateLegalMoves(legalMoves);
         foreach(Move move in legalMoves)
@@ -508,17 +498,17 @@ public class BoardManager : MonoBehaviour
 
     private void unSelectPiece()
     {
-        if(_selectedPiece != null)
-        {
-            changeMaterial(_piecesGameObject[_selectedPiece], _previousMat);
-            TileHighlight._instance.hideTileHighlights();
-            _selectedPiece = null;
-        }
+        if(_selectedPiece == null)
+            return;
+
+        changeMaterial(_piecesGameObject[_selectedPiece], _previousPieceMaterial);
+        TileHighlight._instance.hideTileHighlights();
+        _selectedPiece = null;
     }
 
 	private void updateSelection()
     {
-        if(_tileUnderCursor == Util.Constants._none)
+        if(_selectedSquare == Util.Constants._none)
             return;
         
         if(_selectedPiece != null)
@@ -532,47 +522,44 @@ public class BoardManager : MonoBehaviour
         }
 	}
       
-    public void selectButtonClicked()
+    public void selectVirtualButtonClicked()
     {
-        lock(_toBeMovedThreadLocker)
+        lock(_pieceToBeMovedThreadLocker)
         {
-            if(_toBeMoved.Count != 0)
+            if(_pieceToBeMoved.Count != 0)
                 return;
         }
 
         _audioSourceClicking.Play();
-        selectButton("SelectVirtualButton");
+        selectButton(_virtualButton);
         _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
 
-        _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
-        if(!onBoard(_tileUnderCursor))
+        _selectedSquare = Util.Constants.getTile(_cursor.transform.position);
+        if(onBoard(_selectedSquare))
         {
-            _tileUnderCursor = Util.Constants._none;
+            updateSelection();
         }
         else
         {
-            updateSelection();
-            return;
-        }
-
-        RaycastHit hit;
-        var ray = new Ray(_cursor.transform.position, Vector3.down);
-        foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
-        {
-            var layerName = Util.Constants.ButtonEnumToString(button);
-            if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
+            RaycastHit hit;
+            var ray = new Ray(_cursor.transform.position, Vector3.down);
+            foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
             {
-                interfaceButtonClicked(button);
-                return;
+                var layerName = Util.Constants.ButtonEnumToString(button);
+                if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
+                {
+                    interfaceButtonClicked(button);
+                    return;
+                }
             }
         }
     }
 
-    public void mouseLeftButtonClicked()
+    public void checkIfMouseLeftButtonWasClicked()
     {
-        lock(_toBeMovedThreadLocker)
+        lock(_pieceToBeMovedThreadLocker)
         {
-            if(_toBeMoved.Count != 0 || !Input.GetMouseButtonDown(0) || !Camera.main)
+            if(_pieceToBeMoved.Count != 0 || !Input.GetMouseButtonDown(0) || !Camera.main)
                 return;
         }
 
@@ -581,9 +568,9 @@ public class BoardManager : MonoBehaviour
         RaycastHit hit;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
-            _tileUnderCursor = Util.Constants.getTile(hit.point);
+            _selectedSquare = Util.Constants.getTile(hit.point);
         else
-            _tileUnderCursor = Util.Constants._none;
+            _selectedSquare = Util.Constants._none;
         updateSelection();
 
         foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
@@ -664,23 +651,28 @@ public class BoardManager : MonoBehaviour
         if(go == null || !go.activeSelf)
             return;
         
+        selectButton(go);
+    }
+
+    public void selectButton(GameObject go)
+    {
         var pos = go.transform.position;
         pos.y = 0;
-        _selection.transform.position = pos;
-        _selection.transform .rotation = go.transform.rotation;
-        _selection.SetActive(true);
+        _buttonSelection.transform.position = pos;
+        _buttonSelection.transform.rotation = go.transform.rotation;
+        _buttonSelection.SetActive(true);
     }
 
     public void unselectButton()
     {
-        _selection.SetActive(false);
+        _buttonSelection.SetActive(false);
     }
 
     public void setSelectedFile(Util.ButtonEnum buttonEnum)
     {
         _fileName = Util.Constants.ButtonEnumToString(buttonEnum);
         var go = GameObject.Find(_fileName);
-        _selectedFile.transform.position = go.transform.position;
+        _fileSelection.transform.position = go.transform.position;
     }
 
     private bool onBoard(Vector2Int v)
@@ -720,13 +712,5 @@ public class BoardManager : MonoBehaviour
         go.transform.localScale = go.transform.localScale * 5.0f;
 
         return go;
-    }
-        
-    private void endGame()
-    {
-        foreach(var item in _piecesGameObject)
-            Destroy(item.Value);
-
-        Start();
     }
 }

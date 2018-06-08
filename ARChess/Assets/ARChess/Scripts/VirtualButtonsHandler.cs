@@ -8,15 +8,13 @@ public class VirtualButtonsHandler : MonoBehaviour,  IVirtualButtonEventHandler{
 
 	void Start()
     {
-        _button = GameObject.Find("SelectVirtualButton");
-        if(_button != null)
-            _button.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
+        if(BoardManager._instance._virtualButton != null)
+            BoardManager._instance._virtualButton.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
 	}   
 
     public void OnButtonPressed(VirtualButtonBehaviour vb)
     {
-        print("Pressed" + vb.name);
-        BoardManager._instance.selectButtonClicked();
+        BoardManager._instance.selectVirtualButtonClicked();
     }
 
     public void OnButtonReleased(VirtualButtonBehaviour vb)

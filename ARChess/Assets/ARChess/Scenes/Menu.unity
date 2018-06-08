@@ -1506,7 +1506,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1606243117}
-        m_MethodName: back
+        m_MethodName: mainPanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3390,7 +3390,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1606243117}
-        m_MethodName: back
+        m_MethodName: mainPanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4604,6 +4604,12 @@ MonoBehaviour:
   _MainPanel: {fileID: 374153216}
   _ConfigurationPanel: {fileID: 1964754948}
   _HelpPanel: {fileID: 2080447375}
+  _selectionModeDropdown: {fileID: 71031897}
+  _playerColorDropdown: {fileID: 741850580}
+  _difficultySlider: {fileID: 1730635461}
+  _soundToggle: {fileID: 1620795401}
+  _arToggle: {fileID: 1384743178}
+  _showLegalMovesToggle: {fileID: 135284089}
 --- !u!1 &1620795401
 GameObject:
   m_ObjectHideFlags: 0

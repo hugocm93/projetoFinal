@@ -53,11 +53,10 @@
   <ItemGroup>
      <Compile Include="Assets\ARChess\Scripts\BoardManager.cs" />
      <Compile Include="Assets\ARChess\Scripts\ConfigModel.cs" />
-     <Compile Include="Assets\ARChess\Scripts\Constants.cs" />
      <Compile Include="Assets\ARChess\Scripts\NoARPlease.cs" />
-     <Compile Include="Assets\ARChess\Scripts\Scheduler.cs" />
      <Compile Include="Assets\ARChess\Scripts\TileHighlight.cs" />
      <Compile Include="Assets\ARChess\Scripts\UICallbacks.cs" />
+     <Compile Include="Assets\ARChess\Scripts\Util.cs" />
      <Compile Include="Assets\ARChess\Scripts\VirtualButtonsHandler.cs" />
      <Compile Include="Assets\SharpChess\AI\Brain.cs" />
      <Compile Include="Assets\SharpChess\AI\ForceImmediateMoveException.cs" />

@@ -1,8 +1,8 @@
 Android
 SceneListBegin?
-Assets/Menu.unity
-Assets/ARChessBoard.unity
-Assets/NoARChessBoard.unity
+Assets/ARChess/Scenes/Menu.unity
+Assets/ARChess/Scenes/ARChessBoard.unity
+Assets/ARChess/Scenes/NoARChessBoard.unity
 SceneListEnd?
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 dbc29a6f2739d277c10da432d73adb6d UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
@@ -208,7 +208,7 @@ c13de82f46718726b9076114a25fc554 Assembly-CSharp.dll:.TileHighlight
 64eb32cc721b1cc68a91ed57461e188c UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
-a3f5fd88f442f21fc551bcd109947be0 Assembly-CSharp.dll:.UICallbacks
+6fda1835c21fa1cf879d48fd252dd2ec Assembly-CSharp.dll:.UICallbacks
 bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.AudioSpatializerMicrosoft
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInput
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
@@ -217,7 +217,7 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 358e6e4b1a267fe26a53f8a0702a1256 Assembly-CSharp.dll:.VirtualButtonsHandler
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.NoARPlease
-723186549d14bf0dd2bd317a19c00e1f Assembly-CSharp.dll:.BoardManager
+e4c94019938a1a61fc92eecaae178dbd Assembly-CSharp.dll:.BoardManager
 26215f135eeb48d8fa1189498c107f6c Vuforia.UnityExtensions.dll:Vuforia.AnchorBehaviour
 0561521e336e270e6e5a9c61387cb838 Vuforia.UnityExtensions.dll:Vuforia.AnchorInputListenerBehaviour
 2e0fd93f459db951da0e2e94e2e33fb7 Vuforia.UnityExtensions.dll:Vuforia.AnchorStageBehaviour

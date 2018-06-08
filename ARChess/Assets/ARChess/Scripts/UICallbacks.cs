@@ -10,34 +10,29 @@ public class UICallbacks : MonoBehaviour
     public GameObject _ConfigurationPanel;
     public GameObject _HelpPanel;
 
+    public GameObject _selectionModeDropdown;
+    public GameObject _playerColorDropdown;
+    public GameObject _difficultySlider;
+    public GameObject _soundToggle;
+    public GameObject _arToggle;
+    public GameObject _showLegalMovesToggle;
+
     void Start()
     {
-        back();
+        mainPanel();
+
+        playerColorChanged(_playerColorDropdown.GetComponent<Dropdown>().value);
+        selectionModeChanged(_selectionModeDropdown.GetComponent<Dropdown>().value);
+        difficultyChanged(_difficultySlider.GetComponent<Slider>().value);
+        soundToggle(_soundToggle.GetComponent<Toggle>().enabled);
+        arToggle(_arToggle.GetComponent<Toggle>().enabled);
+        showLegalMovesToggle(_showLegalMovesToggle.GetComponent<Toggle>().enabled);
     }
 
     public void startGame()
     {
         bool arEnabled = ConfigModel._ar;
         SceneManager.LoadScene(arEnabled ? "ARChessBoard" : "NoARChessBoard");
-    }
-
-    public void configuration()
-    {
-        _MainPanel.SetActive(false);
-        _ConfigurationPanel.SetActive(true);
-    }
-
-    public void help()
-    {
-        _MainPanel.SetActive(false);
-        _HelpPanel.SetActive(true);
-    }
-
-    public void back()
-    {
-        _MainPanel.SetActive(true);
-        _ConfigurationPanel.SetActive(false);
-        _HelpPanel.SetActive(false);
     }
 
     public void playerColorChanged(int player)
@@ -71,4 +66,24 @@ public class UICallbacks : MonoBehaviour
     {
         ConfigModel._showLegalMoves = status;
     }
+
+    public void configuration()
+    {
+        _MainPanel.SetActive(false);
+        _ConfigurationPanel.SetActive(true);
+    }
+
+    public void help()
+    {
+        _MainPanel.SetActive(false);
+        _HelpPanel.SetActive(true);
+    }
+
+    public void mainPanel()
+    {
+        _MainPanel.SetActive(true);
+        _ConfigurationPanel.SetActive(false);
+        _HelpPanel.SetActive(false);
+    }
+
 }
