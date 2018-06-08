@@ -129,6 +129,10 @@ public class BoardManager : MonoBehaviour
 
         //Inicializar botao de arquivo
         setSelectedFile(Util.ButtonEnum.File1);
+
+        //Tipo do viewer
+        if(!ConfigModel._glassesOn)
+            DigitalEyewearARController.Instance.SetEyewearType(DigitalEyewearARController.EyewearType.None);
 	}
 
     private void Update()

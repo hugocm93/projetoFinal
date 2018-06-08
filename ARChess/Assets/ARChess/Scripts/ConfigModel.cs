@@ -11,6 +11,7 @@ public class ConfigModel
     public static int _difficulty = 1;
     public static bool _sound = true;
     public static bool _ar = true;
+    public static bool _glassesOn = true;
     public static bool _showLegalMoves = true;
     public static Selection _selection = Selection.VirtualButton;
 

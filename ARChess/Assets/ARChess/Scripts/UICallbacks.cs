@@ -15,6 +15,7 @@ public class UICallbacks : MonoBehaviour
     public GameObject _difficultySlider;
     public GameObject _soundToggle;
     public GameObject _arToggle;
+    public GameObject _glassesToggle;
     public GameObject _showLegalMovesToggle;
 
     void Start()
@@ -27,6 +28,7 @@ public class UICallbacks : MonoBehaviour
         soundToggle(_soundToggle.GetComponent<Toggle>().enabled);
         arToggle(_arToggle.GetComponent<Toggle>().enabled);
         showLegalMovesToggle(_showLegalMovesToggle.GetComponent<Toggle>().enabled);
+        glassesOn(_glassesToggle.GetComponent<Toggle>().enabled);
     }
 
     public void startGame()
@@ -60,11 +62,18 @@ public class UICallbacks : MonoBehaviour
     public void arToggle(bool status)
     {
         ConfigModel._ar = status;
+        _selectionModeDropdown.GetComponent<Dropdown>().interactable = status;
+        _glassesToggle.GetComponent<Toggle>().interactable = status;
     }
 
     public void showLegalMovesToggle(bool status)
     {
         ConfigModel._showLegalMoves = status;
+    }
+
+    public void glassesOn(bool status)
+    {
+        ConfigModel._glassesOn = status;
     }
 
     public void configuration()
