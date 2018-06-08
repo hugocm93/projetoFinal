@@ -223,10 +223,34 @@ public class BoardManager : MonoBehaviour
         else
             camera = ARcameraObj.GetComponent<Camera>();
 
-        var point = camera.transform.position;
-    
+        var targetPoint = camera.transform.position;
+        targetPoint *= 10;
+
         foreach(var status in _statuses)
-            status.transform.rotation = Quaternion.LookRotation(status.transform.position - point);
+            status.transform.rotation = Quaternion.LookRotation(status.transform.position - targetPoint);
+
+        var goList = new List<GameObject>();
+        foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
+        {
+            var go = GameObject.Find(Util.Constants.ButtonEnumToString(button));
+            goList.Add(go);
+        }  
+
+        goList.Add(_selectedFile);
+
+        foreach(var go in goList)
+        {
+            var goPos = go.transform.position;
+            if(Mathf.Approximately(goPos.z, targetPoint.z))
+                return;
+
+            var tetha = Mathf.Rad2Deg * Mathf.Atan((goPos.x - targetPoint.x)/(goPos.z - targetPoint.z));
+
+            if(goPos.z < targetPoint.z)
+                tetha += 180;
+
+            go.transform.rotation = Quaternion.Euler(0, tetha, 0);
+        }
     }
 
     private void dummy()
@@ -617,7 +641,9 @@ public class BoardManager : MonoBehaviour
     public void selectButton(string name)
     {
         var go = GameObject.Find(name);
-        _selection.transform.position = go.transform.position; 
+        var pos = go.transform.position;
+        pos.y = 0;
+        _selection.transform.position = pos; 
         _selection.SetActive(true);
     }
 
