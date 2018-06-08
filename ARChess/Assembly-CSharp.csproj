@@ -51,14 +51,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BoardManager.cs" />
-     <Compile Include="Assets\Scripts\ConfigModel.cs" />
-     <Compile Include="Assets\Scripts\Constants.cs" />
-     <Compile Include="Assets\Scripts\NoARPlease.cs" />
-     <Compile Include="Assets\Scripts\Scheduler.cs" />
-     <Compile Include="Assets\Scripts\TileHighlight.cs" />
-     <Compile Include="Assets\Scripts\UICallbacks.cs" />
-     <Compile Include="Assets\Scripts\VirtualButtonsHandler.cs" />
+     <Compile Include="Assets\ARChess\Scripts\BoardManager.cs" />
+     <Compile Include="Assets\ARChess\Scripts\ConfigModel.cs" />
+     <Compile Include="Assets\ARChess\Scripts\Constants.cs" />
+     <Compile Include="Assets\ARChess\Scripts\NoARPlease.cs" />
+     <Compile Include="Assets\ARChess\Scripts\Scheduler.cs" />
+     <Compile Include="Assets\ARChess\Scripts\TileHighlight.cs" />
+     <Compile Include="Assets\ARChess\Scripts\UICallbacks.cs" />
+     <Compile Include="Assets\ARChess\Scripts\VirtualButtonsHandler.cs" />
      <Compile Include="Assets\SharpChess\AI\Brain.cs" />
      <Compile Include="Assets\SharpChess\AI\ForceImmediateMoveException.cs" />
      <Compile Include="Assets\SharpChess\AI\HashTable.cs" />
@@ -98,7 +98,6 @@
      <Compile Include="Assets\SharpChess\WinBoard.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultInitializationErrorHandler.cs" />
      <Compile Include="Assets\Vuforia\Scripts\DefaultTrackableEventHandler.cs" />
-     <None Include="Assets\Resources\backupGame.xml" />
      <None Include="Assets\Vuforia\Shaders\ColoredLines.shader" />
      <None Include="Assets\StreamingAssets\Vuforia\VuforiaMars_ModelTarget.xml" />
      <None Include="Assets\Vuforia\Shaders\CameraDiffuse.shader" />
