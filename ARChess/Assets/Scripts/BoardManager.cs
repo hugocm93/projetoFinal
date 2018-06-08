@@ -47,6 +47,10 @@ public class BoardManager : MonoBehaviour
     private GameObject _whiteTimer;
     private GameObject _blackTimer;
 
+    private Util.Scheduler _generalScheduler;
+    private Util.Scheduler _timerClickScheduler;
+    private Vector3 _lastCursorPos;
+
     private string _fileName;
 
 	void Start()
@@ -64,6 +68,9 @@ public class BoardManager : MonoBehaviour
 
         _toBeUpdatedThreadLocker = new System.Object();
 
+        _generalScheduler = new Util.Scheduler();
+        _timerClickScheduler = new Util.Scheduler();
+
         // Inicializar highlights
         if(TileHighlight._instance)
             TileHighlight._instance.hideTileHighlights();
@@ -71,6 +78,7 @@ public class BoardManager : MonoBehaviour
         // Desenhar cursor
         _cursor = Instantiate(_cursorPrefab, Util.Constants.getTileCenter(Vector2Int.zero), Quaternion.Euler(180, 0, 0)) as GameObject;
         _cursor.transform.SetParent(transform);
+        _lastCursorPos = _cursor.transform.position;
 
         // Timer Status
         var tileSize = Util.Constants._tile_size * Util.Constants._scale;
@@ -99,6 +107,9 @@ public class BoardManager : MonoBehaviour
         _audioSourceDragging.loop = true;
         _audioSourceDragging.volume = ConfigModel._sound == true ? 1 : 0;
         _audioSourceClicking.volume = ConfigModel._sound == true ? 1 : 0;
+
+        if(ConfigModel._selection == Selection.Time)
+            GameObject.Find("SelectVirtualButton").SetActive(false);
 
         // Inicializar engine
         Game.BoardPositionChanged += BoardPositionChangedEvent;
@@ -183,7 +194,8 @@ public class BoardManager : MonoBehaviour
         movePieces();
         destroyOldGameObjects();
         billBoardEffect();
-        Util.Scheduler.ExecuteSchedule();
+        _generalScheduler.ExecuteSchedule();
+        _timerClickScheduler.ExecuteSchedule();
 
         #if DEBUG
         drawChessboard();
@@ -411,6 +423,14 @@ public class BoardManager : MonoBehaviour
         
         var pos = _cursorTarget.transform.position;
         _cursor.transform.position = new Vector3(pos.x, _cursor.transform.position.y, pos.z);
+
+        var newCursorPos = _cursor.transform.position;
+        if(Vector3.Distance(newCursorPos, _lastCursorPos) > 5 && ConfigModel._selection == Selection.Time)
+        {
+            _timerClickScheduler.Clear();
+            _lastCursorPos = newCursorPos;
+            _timerClickScheduler.RegisterEvent(500, new Util.FunctionPointer(selectButtonClicked));
+        }
     }
 
     private void selectPiece()
@@ -522,7 +542,7 @@ public class BoardManager : MonoBehaviour
 
         _audioSourceClicking.Play();
         selectButton("SelectVirtualButton");
-        Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
+        _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
 
         _tileUnderCursor = Util.Constants.getTile(_cursor.transform.position);
         if(!onBoard(_tileUnderCursor))
@@ -629,8 +649,8 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.LoadGame:
                 var name = Util.Constants.ButtonEnumToString(buttonEnum);
                 selectButton(name);
-                Util.Scheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
-                Util.Scheduler.RegisterEvent(2000, new Util.FunctionPointer(Game.ResumePlay));
+                _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
+                _generalScheduler.RegisterEvent(2000, new Util.FunctionPointer(Game.ResumePlay));
                 break;
 
             default:
@@ -641,9 +661,13 @@ public class BoardManager : MonoBehaviour
     public void selectButton(string name)
     {
         var go = GameObject.Find(name);
+        if(go == null || !go.activeSelf)
+            return;
+        
         var pos = go.transform.position;
         pos.y = 0;
-        _selection.transform.position = pos; 
+        _selection.transform.position = pos;
+        _selection.transform .rotation = go.transform.rotation;
         _selection.SetActive(true);
     }
 

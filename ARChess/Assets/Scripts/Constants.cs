@@ -92,12 +92,12 @@ public class Pair<T, U>
 
 //Source
 //https://forum.unity.com/threads/schedule-command.7838/
-public static class Scheduler
+public class Scheduler
 {
-    private static ArrayList ScheduledEvents = new ArrayList();
-    private static object ThreadLocker = new object();
+    private ArrayList ScheduledEvents = new ArrayList();
+    private object ThreadLocker = new object();
 
-    static Scheduler()
+    public Scheduler()
     {
     }
     /// <summary>
@@ -109,7 +109,7 @@ public static class Scheduler
     /// <param name='functionPointer'>
     /// Function pointer to the event i.e. new FunctionPointer(MyFunction).
     /// </param>
-    public static void RegisterEvent(double ScheduledIn, FunctionPointer functionPointer)
+    public void RegisterEvent(double ScheduledIn, FunctionPointer functionPointer)
     {
         ScheduledEvents.Add(new ScheduledEvent(functionPointer, ScheduledIn));
     }
@@ -125,10 +125,19 @@ public static class Scheduler
     /// <param name='paramiters'>
     /// Paramiters to pass in as an object array.
     /// </param>
-    public static void RegisterEvent(double ScheduledIn, ParamiterizedFunctionPointer functionPointer, params object[] paramiters)
+    public void RegisterEvent(double ScheduledIn, ParamiterizedFunctionPointer functionPointer, params object[] paramiters)
     {
         ScheduledEvents.Add(new ScheduledEvent(functionPointer, paramiters, ScheduledIn));
     }
+
+    public void Clear()
+    {
+        lock(ThreadLocker)
+        {
+            ScheduledEvents.Clear();
+        }
+    }
+
     /// <summary>
     /// Executes the functions in the ScheduledEvents list.
     /// </summary>
@@ -138,7 +147,7 @@ public static class Scheduler
     /// <param name='e'>
     /// E.
     /// </param>
-    public static void ExecuteSchedule()
+    public void ExecuteSchedule()
     {
         //Lock the thread so we dont overrun
         lock(ThreadLocker)

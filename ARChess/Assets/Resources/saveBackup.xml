@@ -1,1 +1,6 @@
-<Game FEN="" TurnNo="0" WhitePlayer="Human" BlackPlayer="Computer" BoardOrientation="White" Version="2.6.9.0" DifficultyLevel="1" ClockMoves="40" ClockSeconds="300" MaximumSearchDepth="1" Pondering="0" UseRandomOpeningMoves="1" />
+<Game FEN="" TurnNo="4" WhitePlayer="Human" BlackPlayer="Computer" BoardOrientation="White" Version="2.6.9.0" DifficultyLevel="1" ClockMoves="40" ClockSeconds="300" MaximumSearchDepth="1" Pondering="0" UseRandomOpeningMoves="1">
+  <Move MoveNo="1" Name="Standard" From="e2" To="e4" SecondsElapsed="13" />
+  <Move MoveNo="1" Name="Standard" From="e7" To="e5" SecondsElapsed="0" />
+  <Move MoveNo="2" Name="Standard" From="d2" To="d4" SecondsElapsed="22" />
+  <Move MoveNo="2" Name="Standard" From="e5" To="d4" SecondsElapsed="0" />
+</Game>
