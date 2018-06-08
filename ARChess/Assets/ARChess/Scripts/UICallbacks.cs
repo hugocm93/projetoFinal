@@ -8,7 +8,6 @@ public class UICallbacks : MonoBehaviour
 {
     public GameObject _MainPanel;
     public GameObject _ConfigurationPanel;
-    public GameObject _HelpPanel;
 
     public GameObject _selectionModeDropdown;
     public GameObject _playerColorDropdown;
@@ -84,15 +83,12 @@ public class UICallbacks : MonoBehaviour
 
     public void help()
     {
-        _MainPanel.SetActive(false);
-        _HelpPanel.SetActive(true);
+        Application.OpenURL("https://drive.google.com/open?id=1D2v0dHgShwX-5FHs6vvvL-V4bZMkfWH8mDIMCVVLfyA");
     }
 
     public void mainPanel()
     {
         _MainPanel.SetActive(true);
         _ConfigurationPanel.SetActive(false);
-        _HelpPanel.SetActive(false);
     }
-
 }
