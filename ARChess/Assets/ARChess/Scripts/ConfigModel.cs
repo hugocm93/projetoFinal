@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Autor: Hugo C. Machado
+
+using System;
 
 public enum Selection
 {

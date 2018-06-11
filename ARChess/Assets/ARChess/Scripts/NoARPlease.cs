@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿//Origem: https://forum.unity.com/threads/use-ar-camera-vuforia-core-in-individual-scene-not-entire-project.498489/#post-3242022
+//Autor: theolagendijk
+
+using System.Collections;
 using System.Collections.Generic;
 using Vuforia;
 

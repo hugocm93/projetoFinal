@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿//Autor: Hugo C. Machado
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;

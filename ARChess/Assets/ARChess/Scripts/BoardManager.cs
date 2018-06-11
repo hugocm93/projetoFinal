@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿//Autor: Hugo C. Machado
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Xml;
@@ -570,7 +572,7 @@ public class BoardManager : MonoBehaviour
         _audioSourceClicking.Play();
 
         RaycastHit hit;
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var ray = _camera.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
             _selectedSquare = Util.Constants.getTile(hit.point);
         else
