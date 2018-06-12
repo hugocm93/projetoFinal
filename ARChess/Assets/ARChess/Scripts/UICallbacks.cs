@@ -41,6 +41,7 @@ public class UICallbacks : MonoBehaviour
     public void startGame()
     {
         bool arEnabled = ConfigModel._ar;
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(arEnabled ? "ARChessBoard" : "NoARChessBoard");
     }
 

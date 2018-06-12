@@ -6,8 +6,6 @@ using UnityEngine;
 using Vuforia;
 
 public class VirtualButtonsHandler : MonoBehaviour,  IVirtualButtonEventHandler{
-    public GameObject _button;
-
 	void Start()
     {
         if(BoardManager._instance._virtualButton != null)

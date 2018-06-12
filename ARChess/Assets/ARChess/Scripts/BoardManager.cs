@@ -62,10 +62,13 @@ public class BoardManager : MonoBehaviour
     //Controle de arquivo de save
     private string _fileName;
 
+    void Awake()
+    {
+        _instance = this;
+    }
+
 	void Start()
 	{
-        _instance = this;
-
         //Inicializar campos
         _selectedSquare = Util.Constants.getInstance()._none;
         _piecesGameObject = new Dictionary<Piece, GameObject>();
@@ -184,7 +187,10 @@ public class BoardManager : MonoBehaviour
         else if(show)
         {
             if(_checkLabel == null)
+            {
                 _checkLabel = Instantiate(_statusPrefab, Util.Constants.getInstance().getBoardCenter(), Quaternion.identity) as GameObject;
+                _checkLabel.transform.SetParent(transform);
+            }
             if(!_3dLabels.Contains(_checkLabel))
                 _3dLabels.Add(_checkLabel);
 
@@ -642,11 +648,12 @@ public class BoardManager : MonoBehaviour
                 SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
                 pressedEffect(Util.ButtonEnum.Menu);
                 Util.Constants.deleteInstance();
-                SceneManager.LoadScene("Menu");
                 _instance = null;
                 Game.BoardPositionChanged -= BoardPositionChangedEvent;
                 Game.New();
                 Game.PausePlay();
+
+                SceneManager.LoadScene("Menu");
                 return;
         }
 

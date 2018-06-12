@@ -23,5 +23,5 @@ public class NoARPlease : MonoBehaviour
             if(mainCamera.GetComponent<DefaultInitializationErrorHandler>())
                 mainCamera.GetComponent<DefaultInitializationErrorHandler>().enabled = false;
         }  
-	}
+    }    
 }
