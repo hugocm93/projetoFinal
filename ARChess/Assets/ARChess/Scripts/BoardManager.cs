@@ -317,6 +317,8 @@ public class BoardManager : MonoBehaviour
                     var go = _piecesGameObject[square.Piece];
                     lock(_pieceToBeMovedThreadLocker)
                     {
+                        if(containsPiece(square.Piece))
+                            removePieceFromToBeMovedList(square.Piece);
                         _pieceToBeMoved.Add(new Util.Pair<Piece, Vector3>(square.Piece, positionTo));
                     }
                 }
@@ -328,6 +330,24 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private bool containsPiece(Piece piece)
+    {
+        foreach(var pair in _pieceToBeMoved)
+            if(pair.first == piece)
+                return true;
+        return false;
+    }
+
+    private void removePieceFromToBeMovedList(Piece piece)
+    {
+        foreach(var pair in _pieceToBeMoved)
+            if(pair.first == piece)
+            {
+                _pieceToBeMoved.Remove(pair);
+                return;
+            }     
     }
 
     private int getIndex(Piece.PieceNames name, Player.PlayerColourNames color)
@@ -636,6 +656,7 @@ public class BoardManager : MonoBehaviour
                     ConfigModel._player = Player.PlayerColourNames.White; 
                 else
                     ConfigModel._player = Player.PlayerColourNames.Black; 
+                ConfigModel._difficulty = Game.DifficultyLevel;
             break;
 
             case Util.ButtonEnum.File1:

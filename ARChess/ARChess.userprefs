@@ -2,12 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.AttachToProcess" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/ARChess/Scripts/BoardManager.cs">
     <Files>
-      <File FileName="Assets/ARChess/Scripts/BoardManager.cs" Line="123" Column="1" />
+      <File FileName="Assets/ARChess/Scripts/BoardManager.cs" Line="650" Column="38" />
       <File FileName="Assets/ARChess/Scripts/TileHighlight.cs" Line="1" Column="1" />
-      <File FileName="Assets/ARChess/Scripts/UICallbacks.cs" Line="1" Column="1" />
-      <File FileName="Assets/ARChess/Scripts/VirtualButtonsHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets/ARChess/Scripts/ConfigModel.cs" Line="1" Column="1" />
-      <File FileName="Assets/ARChess/Scripts/NoARPlease.cs" Line="1" Column="1" />
+      <File FileName="Assets/ARChess/Scripts/UICallbacks.cs" Line="44" Column="35" />
+      <File FileName="Assets/ARChess/Scripts/VirtualButtonsHandler.cs" Line="15" Column="34" />
+      <File FileName="Assets/ARChess/Scripts/ConfigModel.cs" Line="18" Column="66" />
+      <File FileName="Assets/ARChess/Scripts/NoARPlease.cs" Line="17" Column="1" />
       <File FileName="Assets/SharpChess/AI/Brain.cs" Line="1" Column="1" />
       <File FileName="Assets/ARChess/Scripts/Util/ButtonEnum.cs" Line="1" Column="1" />
       <File FileName="Assets/ARChess/Scripts/Util/Constants.cs" Line="1" Column="1" />
@@ -19,7 +19,7 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/Scripts/BoardManager.cs" line="133" column="29" />
-      <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/ARChess/Scripts/BoardManager.cs" line="128" column="1" />
+      <Breakpoint file="/Users/hugocm93/Google Drive/2018.1/ENG1133/projetoFinal/ARChess/Assets/ARChess/Scripts/NoARPlease.cs" line="17" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
