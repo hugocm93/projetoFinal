@@ -458,11 +458,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 1585136670}
     m_Modifications:
-    - target: {fileID: 23588020059690558, guid: 93a1564b6944041cfb90034c1a97b57a,
-        type: 2}
-      propertyPath: m_Materials.Array.size
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4475336278109516, guid: 93a1564b6944041cfb90034c1a97b57a, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0.012
@@ -515,11 +510,6 @@ Prefab:
       propertyPath: _camera
       value: 
       objectReference: {fileID: 1537608903}
-    - target: {fileID: 23588020059690558, guid: 93a1564b6944041cfb90034c1a97b57a,
-        type: 2}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 93a1564b6944041cfb90034c1a97b57a, type: 2}
   m_IsPrefabParent: 0

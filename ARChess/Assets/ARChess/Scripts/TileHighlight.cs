@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿//Autor: Hugo C. Machado
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,7 +40,7 @@ public class TileHighlight : MonoBehaviour
                 {
                     var go = getHighlightObject();
                     go.SetActive(true);
-                    go.transform.position = Util.Constants.getTileCenter(new Vector2Int(i, j));
+                    go.transform.position = Util.Constants.getInstance().getTileCenter(new Vector2Int(i, j));
                 }
     }
 

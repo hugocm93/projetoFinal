@@ -23,13 +23,19 @@ public class UICallbacks : MonoBehaviour
     {
         mainPanel();
 
-        playerColorChanged(_playerColorDropdown.GetComponent<Dropdown>().value);
-        selectionModeChanged(_selectionModeDropdown.GetComponent<Dropdown>().value);
-        difficultyChanged(_difficultySlider.GetComponent<Slider>().value);
-        soundToggle(_soundToggle.GetComponent<Toggle>().enabled);
-        arToggle(_arToggle.GetComponent<Toggle>().enabled);
-        showLegalMovesToggle(_showLegalMovesToggle.GetComponent<Toggle>().enabled);
-        glassesOn(_glassesToggle.GetComponent<Toggle>().enabled);
+        _playerColorDropdown.GetComponent<Dropdown>().value = 
+                    ConfigModel._player == SharpChess.Model.Player.PlayerColourNames.White ? 0 : 1;
+        _selectionModeDropdown.GetComponent<Dropdown>().value = 
+                    ConfigModel._selection == Selection.VirtualButton ? 0 : 1;
+        _difficultySlider.GetComponent<Slider>().value = ConfigModel._difficulty;
+        _soundToggle.GetComponent<Toggle>().isOn = ConfigModel._sound;
+
+        arToggle(ConfigModel._ar);
+        _arToggle.GetComponent<Toggle>().isOn = ConfigModel._ar;
+
+        _showLegalMovesToggle.GetComponent<Toggle>().isOn = ConfigModel._showLegalMoves;
+        _glassesToggle.GetComponent<Toggle>().isOn = ConfigModel._glassesOn;
+
     }
 
     public void startGame()

@@ -7,6 +7,7 @@ using System.Xml;
 using UnityEngine;
 using Vuforia;
 using SharpChess.Model;
+using UnityEngine.SceneManagement;
 
 public class BoardManager : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class BoardManager : MonoBehaviour
         _instance = this;
 
         //Inicializar campos
-        _selectedSquare = Util.Constants._none;
+        _selectedSquare = Util.Constants.getInstance()._none;
         _piecesGameObject = new Dictionary<Piece, GameObject>();
         _pieceToBeCapturedThreadLocker = new System.Object();
         _pieceToBeCaptured = new List<KeyValuePair<Piece, GameObject>>();
@@ -89,9 +90,9 @@ public class BoardManager : MonoBehaviour
         }
 
         // 3d labels de timer
-        var x = (Util.Constants._boardLength + Util.Constants._origin.x) / -2;
-        var blackPoint = new Vector3(x, 0, Util.Constants._origin.z + Util.Constants._boardLength);
-        var whitePoint = new Vector3(x, 0, Util.Constants._origin.z);
+        var x = (Util.Constants.getInstance()._boardLength + Util.Constants.getInstance().getOrigin().x) / -2;
+        var blackPoint = new Vector3(x, 0, Util.Constants.getInstance().getOrigin().z + Util.Constants.getInstance()._boardLength);
+        var whitePoint = new Vector3(x, 0, Util.Constants.getInstance().getOrigin().z);
         initializeTimerLabel(out _whiteTimer, whitePoint);
         initializeTimerLabel(out _blackTimer, blackPoint);
         _3dLabels.Add(_whiteTimer);
@@ -107,16 +108,7 @@ public class BoardManager : MonoBehaviour
             _virtualButton.SetActive(false);
 
         // Inicializar engine
-        Game.BoardPositionChanged += BoardPositionChangedEvent;
-        Game.BoardPositionChanged += dummy;
-        Game.GamePaused += dummy;
-        Game.GameResumed += dummy;
-        Game.GameSaved += dummy;
-        Game.SettingsUpdated += dummy;
-        Game.PlayerWhite.Brain.MoveConsideredEvent += dummy;
-        Game.PlayerBlack.Brain.MoveConsideredEvent += dummy;
-        Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
-        Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
+        addGameCallbacks();
 
         bool isPlayerWhite = ConfigModel._player == Player.PlayerColourNames.White;
         Game.PlayerWhite.Intellegence =  isPlayerWhite ? 
@@ -136,6 +128,20 @@ public class BoardManager : MonoBehaviour
         if(!ConfigModel._glassesOn)
             DigitalEyewearARController.Instance.SetEyewearType(DigitalEyewearARController.EyewearType.None);
 	}
+
+    private void addGameCallbacks()
+    {
+        Game.BoardPositionChanged += BoardPositionChangedEvent;
+        Game.BoardPositionChanged += dummy;
+        Game.GamePaused += dummy;
+        Game.GameResumed += dummy;
+        Game.GameSaved += dummy;
+        Game.SettingsUpdated += dummy;
+        Game.PlayerWhite.Brain.MoveConsideredEvent += dummy;
+        Game.PlayerBlack.Brain.MoveConsideredEvent += dummy;
+        Game.PlayerWhite.Brain.ThinkingBeginningEvent += dummy;
+        Game.PlayerBlack.Brain.ThinkingBeginningEvent += dummy;
+    }
 
     private void Update()
     {
@@ -160,7 +166,7 @@ public class BoardManager : MonoBehaviour
 
     private void initializeTimerLabel(out GameObject _timerLabel, Vector3 point)
     {
-        _timerLabel = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+        _timerLabel = Instantiate(_statusPrefab, Util.Constants.getInstance().getBoardCenter(), Quaternion.identity) as GameObject;
         _timerLabel.transform.SetParent(transform);
         _timerLabel.transform.position = point;
         _timerLabel.GetComponent<TextMesh>().color = Color.black;
@@ -178,7 +184,7 @@ public class BoardManager : MonoBehaviour
         else if(show)
         {
             if(_checkLabel == null)
-                _checkLabel = Instantiate(_statusPrefab, Util.Constants.getBoardCenter(), Quaternion.identity) as GameObject;
+                _checkLabel = Instantiate(_statusPrefab, Util.Constants.getInstance().getBoardCenter(), Quaternion.identity) as GameObject;
             if(!_3dLabels.Contains(_checkLabel))
                 _3dLabels.Add(_checkLabel);
 
@@ -249,7 +255,7 @@ public class BoardManager : MonoBehaviour
         var goList = new List<GameObject>();
         foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
         {
-            var go = GameObject.Find(Util.Constants.ButtonEnumToString(button));
+            var go = GameObject.Find(Util.HelperButtonEnum.ButtonEnumToString(button));
             goList.Add(go);
         }  
 
@@ -301,7 +307,7 @@ public class BoardManager : MonoBehaviour
             {
                 try
                 {
-                    var positionTo = Util.Constants.getTileCenter(new Vector2Int(square.File, square.Rank));
+                    var positionTo = Util.Constants.getInstance().getTileCenter(new Vector2Int(square.File, square.Rank));
                     var go = _piecesGameObject[square.Piece];
                     lock(_pieceToBeMovedThreadLocker)
                     {
@@ -401,13 +407,13 @@ public class BoardManager : MonoBehaviour
         {
             foreach(var item in _pieceToBeCaptured)
             {
-                if(!onBoard(Util.Constants.getTile(item.Value.transform.position)))
+                if(!onBoard(Util.Constants.getInstance().getTile(item.Value.transform.position)))
                     continue;
 
-                var tileSize = Util.Constants._tile_size * Util.Constants._scale;
+                var tileSize = Util.Constants.getInstance()._tile_size * Util.Constants.getInstance()._scale;
                 var boardLength = 8 * tileSize;
-                var blackArea = new Vector3(boardLength, 0, Util.Constants._origin.z + boardLength / 2);
-                var whiteArea = new Vector3(boardLength, 0, Util.Constants._origin.z);
+                var blackArea = new Vector3(boardLength, 0, Util.Constants.getInstance().getOrigin().z + boardLength / 2);
+                var whiteArea = new Vector3(boardLength, 0, Util.Constants.getInstance().getOrigin().z);
                 var area = item.Key.Player.Colour == Player.PlayerColourNames.White ? whiteArea : blackArea;
                 item.Value.transform.position = area + new Vector3(4 * Random.value * tileSize, 0, 4 * Random.value * tileSize);
             }
@@ -436,7 +442,7 @@ public class BoardManager : MonoBehaviour
 
     private void selectPiece()
     {
-        if(_selectedSquare == Util.Constants._none)
+        if(_selectedSquare == Util.Constants.getInstance()._none)
             return;
        
         var piece = Board.GetPiece(_selectedSquare.x, _selectedSquare.y);
@@ -514,7 +520,7 @@ public class BoardManager : MonoBehaviour
 
 	private void updateSelection()
     {
-        if(_selectedSquare == Util.Constants._none)
+        if(_selectedSquare == Util.Constants.getInstance()._none)
             return;
         
         if(_selectedPiece != null)
@@ -540,7 +546,7 @@ public class BoardManager : MonoBehaviour
         selectButton(_virtualButton);
         _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
 
-        _selectedSquare = Util.Constants.getTile(_cursor.transform.position);
+        _selectedSquare = Util.Constants.getInstance().getTile(_cursor.transform.position);
         if(onBoard(_selectedSquare))
         {
             updateSelection();
@@ -551,7 +557,7 @@ public class BoardManager : MonoBehaviour
             var ray = new Ray(_cursor.transform.position, Vector3.down);
             foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
             {
-                var layerName = Util.Constants.ButtonEnumToString(button);
+                var layerName = Util.HelperButtonEnum.ButtonEnumToString(button);
                 if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
                 {
                     interfaceButtonClicked(button);
@@ -565,7 +571,7 @@ public class BoardManager : MonoBehaviour
     {
         lock(_pieceToBeMovedThreadLocker)
         {
-            if(_pieceToBeMoved.Count != 0 || !Input.GetMouseButtonDown(0) || !Camera.main)
+            if(_pieceToBeMoved.Count != 0 || !Input.GetMouseButtonDown(0))
                 return;
         }
 
@@ -574,14 +580,14 @@ public class BoardManager : MonoBehaviour
         RaycastHit hit;
         var ray = _camera.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask("ChessPlane")))
-            _selectedSquare = Util.Constants.getTile(hit.point);
+            _selectedSquare = Util.Constants.getInstance().getTile(hit.point);
         else
-            _selectedSquare = Util.Constants._none;
+            _selectedSquare = Util.Constants.getInstance()._none;
         updateSelection();
 
         foreach(Util.ButtonEnum button in Util.ButtonEnum.GetValues(typeof(Util.ButtonEnum)))
         {
-            var layerName = Util.Constants.ButtonEnumToString(button);
+            var layerName = Util.HelperButtonEnum.ButtonEnumToString(button);
             if(Physics.Raycast(ray, out hit, float.MaxValue, LayerMask.GetMask(layerName)))
             {
                 interfaceButtonClicked(button);
@@ -611,7 +617,7 @@ public class BoardManager : MonoBehaviour
                 Game.BoardPositionChanged -= BoardPositionChangedEvent;
                 Game.RedoMove();
                 Game.BoardPositionChanged += BoardPositionChangedEvent;
-                Game.RedoMove();
+                Game.RedoMove();    
                 break;
 
             case Util.ButtonEnum.SaveGame:
@@ -631,6 +637,17 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.File3:
                 setSelectedFile(buttonEnum);
             break;
+
+            case Util.ButtonEnum.Menu:
+                SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
+                pressedEffect(Util.ButtonEnum.Menu);
+                Util.Constants.deleteInstance();
+                SceneManager.LoadScene("Menu");
+                _instance = null;
+                Game.BoardPositionChanged -= BoardPositionChangedEvent;
+                Game.New();
+                Game.PausePlay();
+                return;
         }
 
         switch(buttonEnum)
@@ -640,15 +657,20 @@ public class BoardManager : MonoBehaviour
             case Util.ButtonEnum.Redo:
             case Util.ButtonEnum.SaveGame:
             case Util.ButtonEnum.LoadGame:
-                var name = Util.Constants.ButtonEnumToString(buttonEnum);
-                selectButton(name);
-                _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
+                pressedEffect(buttonEnum);
                 _generalScheduler.RegisterEvent(2000, new Util.FunctionPointer(Game.ResumePlay));
                 break;
 
             default:
                 break;
         }
+    }
+
+    private void pressedEffect(Util.ButtonEnum buttonEnum)
+    {
+        var name = Util.HelperButtonEnum.ButtonEnumToString(buttonEnum);
+        selectButton(name);
+        _generalScheduler.RegisterEvent(300, new Util.FunctionPointer(unselectButton));
     }
 
     public void selectButton(string name)
@@ -676,7 +698,7 @@ public class BoardManager : MonoBehaviour
 
     public void setSelectedFile(Util.ButtonEnum buttonEnum)
     {
-        _fileName = Util.Constants.ButtonEnumToString(buttonEnum);
+        _fileName = Util.HelperButtonEnum.ButtonEnumToString(buttonEnum);
         var go = GameObject.Find(_fileName);
         _fileSelection.transform.position = go.transform.position;
     }
@@ -704,7 +726,7 @@ public class BoardManager : MonoBehaviour
     private void spawnChessPiece(int index, Vector2Int position, Player.PlayerColourNames color)
     {
         var piece = Board.GetPiece(position.x, position.y);
-        _piecesGameObject[piece] = instantiatePiece(index, Util.Constants.getTileCenter(position), color);
+        _piecesGameObject[piece] = instantiatePiece(index, Util.Constants.getInstance().getTileCenter(position), color);
     }
 
     private GameObject instantiatePiece(int index, Vector3 tilePosition, Player.PlayerColourNames color)
